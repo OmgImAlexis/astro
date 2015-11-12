@@ -1,3 +1,14 @@
 extends ./layouts/main
 
 block content
+    .container.text-center
+        img(src="/images/bitcannon.png")
+        form(action="/", method="POST")
+            .form-group.input-group(style="width:100%;")
+                input.form-control(type="search")
+                span.input-group-btn(style="min-width: 200px;")
+                    select.form-control(style="float: right;")
+                        option(value="") All
+                        for category in categories
+                            option(value=category.url) #{category.title}
+        span.text-center #{stats.count} torrents in the database
