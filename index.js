@@ -59,6 +59,11 @@ app.use(session({
     saveUninitialized: true
 }));
 
+app.use(function(req, res, next){
+    res.locals.title = nconf.get('web:title');
+    next();
+});
+
 app.use('/', require('./app/routes/core'));
 
 app.use(function(req, res){
