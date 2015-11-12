@@ -61,6 +61,7 @@ app.use(session({
 
 app.use(function(req, res, next){
     res.locals.title = nconf.get('web:title');
+    res.locals.trackers = nconf.get('trackers');
     next();
 });
 
