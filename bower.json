@@ -1,0 +1,24 @@
+{
+  "name": "BitCannon",
+  "description": "",
+  "main": "index.js",
+  "authors": [
+    "OmgImAlexis",
+    "Stephen304"
+  ],
+  "license": "MIT",
+  "homepage": "http://bitcannon.io",
+  "moduleType": [],
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "font-awesome": "fontawesome#~4.4.0",
+    "bootswatch-dist": "~3.3.1+2-sandstone"
+  }
+}
