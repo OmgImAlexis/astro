@@ -19,6 +19,7 @@
   ],
   "dependencies": {
     "font-awesome": "fontawesome#~4.4.0",
-    "bootswatch-dist": "~3.3.1+2-sandstone"
+    "bootswatch-dist": "3.3.0-flatly",
+    "jquery": "~2.1.4"
   }
 }

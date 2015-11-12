@@ -16,7 +16,8 @@ module.exports = function(grunt) {
         uglify: {
             my_target: {
                 files: {
-                    './app/public/js/vender.min.js': ['./_bower.js']
+                    './app/public/js/vender.min.js': ['./_bower.js'],
+                    './app/public/js/core.min.js': ['./app/public/js/core.js']
                 }
             }
         },
@@ -27,8 +28,8 @@ module.exports = function(grunt) {
             },
             target: {
                 files: {
-                    './app/public/css/vender.min.css': ['._bower.css'],
-                    './app/public/css/core.min.css': ['./public/css/core.css']
+                    './app/public/css/vender.min.css': ['./_bower.css'],
+                    './app/public/css/core.min.css': ['./app/public/css/core.css']
                 }
             }
         },

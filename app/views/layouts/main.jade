@@ -3,16 +3,13 @@ html
     head
         meta(charset="utf-8")
         
-        title = title
+        title= title
         
         meta(name="description", content="")
         meta(name="viewport", content="width=device-width")
 
-        link(rel="stylesheet", href="/bower_components/bootswatch-dist/css/bootstrap.css")
-        link(rel="stylesheet", href="/bower_components/angular-loading-bar/build/loading-bar.css")
-        link(rel="stylesheet", href="/bower_components/fontawesome/css/font-awesome.css")
-        
-        link(rel="stylesheet", href="/css/main.css")
+        link(rel="stylesheet", href="/css/vender.min.css")
+        link(rel="stylesheet", href="/css/core.min.css")
     body
         .navbar.navbar-inverse.navbar-fixed-top
             .container
@@ -30,8 +27,8 @@ html
                         li
                             a(href="#", data-toggle="modal", data-target="#settingsModal") Settings #[span.caret]
         block content
-.container
-    .alert.alert-warning.alert-dismissible(role="alert")
-        button.close(type="button", aria-label="Close")
-            span(aria-hidden) &times;
-            | [strong Warning: ] #{message}
+        .container
+            .alert.alert-warning.alert-dismissible(role="alert")
+                button.close(type="button", aria-label="Close")
+                    span(aria-hidden) &times;
+                    | #[strong Warning: ] #{message}
