@@ -1,0 +1,26 @@
+extends ./layouts/main
+
+block content
+    .container
+        table.table.table-striped.table-hover
+            thead
+                tr
+                    th Category
+                    th DL
+                    th Name
+                    th Imported
+                    th Swarm
+            tbody
+                tr
+                    for torrent in torrents
+                        td #{torrent.category.title}
+                        td
+                            a(href="magnet:?xt=urn:btih:" + torrent.btih + trackers) #[i.fa.fa-magnet]
+                        td
+                            a(href="") torrent.title
+                        td
+                            span.label.label-default.pull-right(style="margin-top: 4px;", am-time-ago=torrent.imported)
+                        td(style="white-space: nowrap;")
+                            span.label.label-success #{torrent.swarm.seeders}
+                            | &nbsp;
+                            .label.label-danger #{torrent.swam.leechers}
