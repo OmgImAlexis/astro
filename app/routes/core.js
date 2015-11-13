@@ -53,6 +53,32 @@ module.exports = (function() {
         });
     });
 
+    app.get('/category/:slug', function(req, res){
+        async.waterfall([
+            function(callback) {
+                Category.findOne({slug: req.params.slug}).exec(function(err, category){
+                    if(err) { callback(err); }
+                    if(category){
+                        callback(null, category);
+                    }
+                });
+            },
+            function(category, callback) {
+                Torrent.find({
+                    category: category._id
+                }).limit(nconf.get('web:torrentsPerPage')).populate('category').sort('_id').exec(function(err, torrents) {
+                    if(err) { console.log(err); }
+                    callback(null, torrents);
+                });
+            }
+        ], function (err, torrents) {
+            if(err) { console.log(err); }
+            res.render('search', {
+                torrents: torrents
+            });
+        });
+    });
+
     app.get('/search', function(req, res){
         var limit = req.query.limit || nconf.get('web:torrentsPerPage'), search = {};
         async.waterfall([
@@ -88,8 +114,7 @@ module.exports = (function() {
         ], function (err, torrents) {
             if(err) { console.log(err); }
             res.render('search', {
-                torrents: torrents,
-                search: search
+                torrents: torrents
             });
         });
     });
