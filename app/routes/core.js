@@ -26,12 +26,8 @@ module.exports = (function() {
 
     app.get('/search', function(req, res){
         var limit = req.query.limit || nconf.get('web:torrentsPerPage'),
-            search = req.query.q || {}
-        Torrent.find({
-            $text: {
-                $search: req.query.q
-            }
-        },{
+            search = req.query.q ? { $text: { $search: req.query.q } } : {};
+        Torrent.find(search, {
             score: {
                 $meta: 'textScore'
             }
