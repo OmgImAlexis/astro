@@ -4,13 +4,14 @@ module.exports = function(grunt) {
             all: {
                 dest: './_bower.js',
                 cssDest: './_bower.css',
+                fontDest: './app/public/fonts/',
                 exclude: [
                 ],
                 dependencies: {
                 },
                 bowerOptions: {
                     relative: false
-                },
+                }
             }
         },
         uglify: {
