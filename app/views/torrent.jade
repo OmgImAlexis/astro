@@ -2,34 +2,36 @@ extends ./layouts/main
 
 block content
     .container
-        h3 #{torrent.title}
+        h3 !{torrent.title}
         .row
             .col-md-8
                 h4 Torrent Details
                 ul.list-group
                     li.list-group-item
                         | Import Date
-                        span.label.label-default.pull-right(am-time-ago=torrent.imported)
+                        span.label.label-default.pull-right
+                            time.date(datetime=(new Date(torrent.imported).toISOString())) #{new Date(torrent.imported).toISOString()}
                     li.list-group-item
                         | Category
-                        span.label.label-default.pull-right(am-time-ago=torrent.category)
+                        span.label.label-default.pull-right 
                     li.list-group-item
                         | File Size
-                        span.label.label-default.pull-right(am-time-ago=torrent.size) bytes
-                a(href="magnet:?xt=urn:btih:" + torrent.btih + trackers)
-        .col-md-4
-            h4 Tracker Stats
-            ul.list-group
-                li.list-group-item
-                    | Seeders
-                    span.label.label-success.pull-right #{torrent.swarm.seeders}
-                li.list-group-item
-                    | Leechers
-                    span.label.label-danger.pull-right #{torrent.swarm.leechers}
-                li.list-group-item
-                    | Last Updated
-                    span.label.label-default.pull-right #{torrent.swarm.lastmod}
-            a.btn.btn-info(style="width: 100%;")
+                        span.label.label-default.pull-right(am-time-ago=torrent.size) #{torrent.size} bytes
+                a.btn.btn-success(href="magnet:?xt=urn:btih:" + torrent.infoHash + trackers, style="width: 100%;") Download!
+            .col-md-4
+                h4 Tracker Stats
+                ul.list-group
+                    li.list-group-item
+                        | Seeders
+                        span.label.label-success.pull-right #{torrent.swarm.seeders}
+                    li.list-group-item
+                        | Leechers
+                        span.label.label-danger.pull-right #{torrent.swarm.leechers}
+                    li.list-group-item
+                        | Last Updated
+                        span.label.label-default.pull-right
+                            time.date(datetime=(new Date(torrent.lastmod).toISOString())) #{new Date(torrent.lastmod).toISOString()}
+                a.btn.btn-info(style="width: 100%;") Refresh Trackers
         .row
             .col-md-12
                 h4 Sources
