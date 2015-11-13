@@ -35,6 +35,7 @@
     "jade": "^1.11.0",
     "method-override": "^2.3.3",
     "mongoose": "^4.0.5",
-    "nconf": "^0.8.2"
+    "nconf": "^0.8.2",
+    "underscore": "^1.8.3"
   }
 }
