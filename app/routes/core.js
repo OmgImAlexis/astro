@@ -25,8 +25,8 @@ module.exports = (function() {
     });
 
     app.get('/search', function(req, res){
-        var limit = req.query.limit || nconf.get('web:torrentsPerPage');
-        console.log(req.query.q);
+        var limit = req.query.limit || nconf.get('web:torrentsPerPage'),
+            search = req.query.q || {}
         Torrent.find({
             $text: {
                 $search: req.query.q
@@ -35,7 +35,7 @@ module.exports = (function() {
             score: {
                 $meta: 'textScore'
             }
-        }).limit(limit).exec(function(err, torrents) {
+        }).limit(limit).populate('category').exec(function(err, torrents) {
             if(err) { console.log(err); }
             res.render('search', {
                 torrents: torrents
