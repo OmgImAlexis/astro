@@ -3,7 +3,7 @@ extends ./layouts/main
 block content
     .container.text-center
         img(src="/images/bitcannon.png")
-        form(action="/", method="POST")
+        form(action="/search", method="GET")
             .form-group.input-group(style="width:100%;")
                 input.form-control(type="search")
                 span.input-group-btn(style="min-width: 200px;")

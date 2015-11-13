@@ -21,4 +21,6 @@ var torrentSchema = mongoose.Schema({
     infoHash: String
 });
 
+torrentSchema.index({ title: 'text' });
+
 module.exports = mongoose.model('Torrent', torrentSchema);

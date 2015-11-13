@@ -1,5 +1,5 @@
 var express = require('express'),
-    mongoose = require('mongoose'),
+    nconf = require('nconf'),
     Torrent = require('models/Torrent.js'),
     Category = require('models/Category.js');
 
@@ -25,9 +25,19 @@ module.exports = (function() {
     });
 
     app.get('/search', function(req, res){
-        Torrent.find().exec(function(err, torrents){
-            if(err){ console.log(err); }
-            res.render('search',{
+        var limit = req.query.limit || nconf.get('web:torrentsPerPage');
+        console.log(req.query.q);
+        Torrent.find({
+            $text: {
+                $search: req.query.q
+            }
+        },{
+            score: {
+                $meta: 'textScore'
+            }
+        }).limit(limit).exec(function(err, torrents) {
+            if(err) { console.log(err); }
+            res.render('search', {
                 torrents: torrents
             });
         });
@@ -38,16 +48,6 @@ module.exports = (function() {
             if(err){ console.log(err); }
             res.render('torrent',{
                 torrent: torrent
-            });
-        });
-    });
-
-    app.post('/search', function(req, res){
-        // var search = req.query;
-        Torrent.find().exec(function(err, categories){
-            if(err){ console.log(err); }
-            res.render('index',{
-                categories: categories
             });
         });
     });
