@@ -18,7 +18,6 @@
     "tests"
   ],
   "dependencies": {
-    "font-awesome": "fontawesome#~4.4.0",
     "bootswatch-dist": "3.3.0-flatly",
     "jquery": "~2.1.4",
     "jquery-timeago": "~1.4.3"
