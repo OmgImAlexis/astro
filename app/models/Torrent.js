@@ -7,13 +7,18 @@ var torrentSchema = mongoose.Schema({
         ref: 'Category'
     },
     size: Number,
-    details: String,
+    details: [
+        {
+            type: String
+        }
+    ],
     swarm: {
         seeders: Number,
         leechers: Number
     },
     lastmod: Date,
-    imported: Date
+    imported: Date,
+    infoHash: String
 });
 
 module.exports = mongoose.model('Torrent', torrentSchema);
