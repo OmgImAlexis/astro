@@ -14,15 +14,14 @@ block content
                 if(torrents)
                     for torrent in torrents
                         tr
-                            td
-                            td
-                            td 
+                            td #{torrent.category.title}
                             td
                                 a(href="magnet:?xt=urn:btih:" + torrent.infoHash + trackers) #[i.fa.fa-magnet]
                             td
                                 a(href="/torrent/" + torrent.infoHash) !{torrent.title}
                             td
-                                span.label.label-default.pull-right(style="margin-top: 4px;", am-time-ago=torrent.imported)
+                                span.label.label-default.pull-right(style="margin-top: 4px;")
+                                    time.date(datetime=(new Date(torrent.imported).toISOString())) #{new Date(torrent.imported).toISOString()}
                             td(style="white-space: nowrap;")
                                 span.label.label-success #{torrent.swarm.seeders}
                                 | &nbsp;
