@@ -6,5 +6,5 @@ block content
             for category in categories
                 .col-md-3
                     h3
-                        a(href="/") #{category.title}
+                        a(href="/category/" + category.slug) #{category.title}
                     p #{category.count} torrents in this category
