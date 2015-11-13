@@ -25,6 +25,10 @@ module.exports = (function() {
         });
     });
 
+    app.get('/about', function(req, res){
+        res.render('about');
+    });
+
     app.get('/search', function(req, res){
         var limit = req.query.limit || nconf.get('web:torrentsPerPage'), search = {};
         async.waterfall([
