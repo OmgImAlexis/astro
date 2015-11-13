@@ -22,10 +22,10 @@ html
                     a.navbar-brand(href="/") BitCannon
                 .collapse.navbar-collapse
                     ul.nav.navbar-nav
-                        li
-                            a(href="") Browse
-                        li
-                            a(href="") About
+                        li(class=(currentPath === '/browse' ? 'active' : ''))
+                            a(href="/browse") Browse
+                        li(class=(currentPath === '/about' ? 'active' : ''))
+                            a(href="/about") About
                     ul.nav.navbar-nav.navbar-right
                         li
                             a(href="#", data-toggle="modal", data-target="#settingsModal") Settings #[span.caret]
