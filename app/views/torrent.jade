@@ -13,7 +13,7 @@ block content
                             time.date(datetime=(new Date(torrent.imported).toISOString())) #{new Date(torrent.imported).toISOString()}
                     li.list-group-item
                         | Category
-                        span.label.label-default.pull-right 
+                        span.label.label-default.pull-right #{torrent.category.title}
                     li.list-group-item
                         | File Size
                         span.label.label-default.pull-right(am-time-ago=torrent.size) #{torrent.size} bytes
@@ -38,4 +38,4 @@ block content
                 ul.list-group
                     for source in torrent.details
                         li.list-group-item
-                            a(href=source) #{source}
+                            a(href=decodeURIComponent(source)) #{decodeURIComponent(source)}

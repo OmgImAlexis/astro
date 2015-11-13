@@ -40,7 +40,7 @@ module.exports = (function() {
     });
 
     app.get('/torrent/:infoHash', function(req, res){
-        Torrent.findOne({infoHash: req.params.infoHash}).exec(function(err, torrent){
+        Torrent.findOne({infoHash: req.params.infoHash}).populate('category').exec(function(err, torrent){
             if(err){ console.log(err); }
             res.render('torrent',{
                 torrent: torrent
