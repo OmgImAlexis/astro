@@ -30,22 +30,15 @@ module.exports = (function() {
     });
 
     app.get('/browse', function(req, res){
-        Torrent.aggregate({
-            $group: {
-                _id: "$category",
-                total: {
-                    $sum: 1
-                }
-            }
-        }).exec(function(err, torrentCounts){
-            var categories = [];
-            async.each(torrentCounts, function(torrentCount, callback) {
-                Category.findOne({_id: torrentCount._id}).lean().exec(function(err, category){
-                    if(category){
-                        category.torrentCount = torrentCount.total;
-                        categories.push(category);
-                    }
-                    callback();
+        Category.find({}).sort("title", -1).lean().exec(function(err, categories){
+            if(err) { console.log(err); }
+            async.each(categories, function(category, callback) {
+                Torrent.count({
+                    category: category._id
+                }).exec(function(err, torrentCount){
+                    if(err) { console.log(err); }
+                    category.torrentCount = torrentCount;
+                    callback(null);
                 });
             }, function(err){
                 if(err) { console.log(err); }
