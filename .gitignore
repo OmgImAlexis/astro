@@ -43,3 +43,6 @@ Temporary Items
 
 # Config file
 config.json
+
+# Torrent dumps
+import.txt
