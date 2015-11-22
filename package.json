@@ -1,0 +1,42 @@
+{
+  "name": "bitcannon-web",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bitcannon-org/bitcannon-web.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/bitcannon-org/bitcannon-web/issues"
+  },
+  "homepage": "http://bitcannon.io",
+  "dependencies": {
+    "app-module-path": "^1.0.4",
+    "async": "^1.5.0",
+    "body-parser": "^1.13.1",
+    "bunyan": "^1.5.1",
+    "compression": "^1.6.0",
+    "connect-mongo": "^0.8.1",
+    "cookie-parser": "^1.3.5",
+    "express": "^4.12.4",
+    "express-session": "^1.11.3",
+    "grunt": "^0.4.5",
+    "grunt-bower-concat": "^0.6.0",
+    "grunt-contrib-cssmin": "^0.14.0",
+    "grunt-contrib-jshint": "^0.11.3",
+    "grunt-contrib-uglify": "^0.10.0",
+    "jade": "^1.11.0",
+    "line-by-line": "^0.1.4",
+    "method-override": "^2.3.3",
+    "mongoose": "^4.0.5",
+    "nconf": "^0.8.2",
+    "underscore": "^1.8.3"
+  }
+}
