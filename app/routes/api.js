@@ -1,11 +1,58 @@
 var express = require('express'),
     nconf = require('nconf'),
     async = require('async'),
+    lineByLineReader = require('line-by-line'),
     Torrent = require('models/Torrent.js'),
     Category = require('models/Category.js');
 
 module.exports = (function() {
     var app = express.Router();
+
+    app.get('/import', function(req, res){
+        res.send('Starting import');
+        console.time("import");
+        var lr = new lineByLineReader('import.txt');
+        lr.on('line', function (line) {
+            line = line.split('|');
+            Category.findOne({
+                $or: [
+                   { 'title': new RegExp(line[2], 'i') },
+                   { 'aliases': new RegExp(line[2], 'i') }
+                ]
+            }).exec(function(err, category){
+                if(err) {console.log(err);}
+                if(category){
+                    Torrent.create({
+                        title: line[1],
+                        category: category._id,
+                        size: line[5],
+                        details: [
+                            line[3]
+                        ],
+                        swarm: {
+                            seeders: line[8],
+                            leechers: line[9]
+                        },
+                        lastmod: Date.now(),
+                        imported: Date.now(),
+                        infoHash: line[0]
+                    }, function(err, torrent) {
+                        if(err) {
+                            if(err.code !== 11000){
+                                console.log(err);
+                            }
+                        } else {
+                            console.log(torrent.infoHash + ' added');
+                        }
+                    });
+                }
+            });
+        });
+        lr.on('end', function () {
+            console.log('All lines are read, file is closed now.');
+            console.timeEnd("import");
+        });
+    });
 
     app.get('/', function(req, res){
         res.json({
@@ -35,22 +82,15 @@ module.exports = (function() {
     });
 
     app.get('/browse', function(req, res){
-        Torrent.aggregate({
-            $group: {
-                _id: "$category",
-                total: {
-                    $sum: 1
-                }
-            }
-        }).exec(function(err, torrentCounts){
-            var categories = [];
-            async.each(torrentCounts, function(torrentCount, callback) {
-                Category.findOne({_id: torrentCount._id}).lean().exec(function(err, category){
-                    if(category){
-                        category.torrentCount = torrentCount.total;
-                        categories.push(category);
-                    }
-                    callback();
+        Category.find({}).sort("title", -1).lean().exec(function(err, categories){
+            if(err) { console.log(err); }
+            async.each(categories, function(category, callback) {
+                Torrent.count({
+                    category: category._id
+                }).exec(function(err, torrentCount){
+                    if(err) { console.log(err); }
+                    category.torrentCount = torrentCount;
+                    callback(null);
                 });
             }, function(err){
                 if(err) { console.log(err); }
