@@ -1,7 +1,6 @@
 var express = require('express'),
     nconf = require('nconf'),
     async = require('async'),
-    _ = require('underscore'),
     Torrent = require('models/Torrent.js'),
     Category = require('models/Category.js');
 
@@ -34,20 +33,24 @@ module.exports = (function() {
         Torrent.aggregate({
             $group: {
                 _id: "$category",
-                total: {$sum: 1}
+                total: {
+                    $sum: 1
+                }
             }
         }).exec(function(err, torrentCounts){
-            if(err) { console.log(err); }
-            Category.find({}).lean().exec(function(err, categories){
-                if(err) { console.log(err); }
-                categories = categories.map(function(category, i){
-                    var obj = _.where(torrentCounts, {_id: categories[i]._id});
-                    category.totalTorrents = obj.length ? obj[0].total : 0; // This should set the totalTorrents but seems to only return []
-                    return category;
+            var categories = [];
+            async.each(torrentCounts, function(torrentCount, callback) {
+                Category.findOne({_id: torrentCount._id}).lean().exec(function(err, category){
+                    if(category){
+                        category.torrentCount = torrentCount.total;
+                        categories.push(category);
+                    }
+                    callback();
                 });
+            }, function(err){
+                if(err) { console.log(err); }
                 res.render('browse', {
-                    categories: categories,
-                    torrentCounts: torrentCounts
+                    categories: categories
                 });
             });
         });
