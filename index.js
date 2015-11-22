@@ -67,6 +67,7 @@ app.use(function(req, res, next){
 });
 
 app.use('/', require('./app/routes/core'));
+app.use('/api', require('./app/routes/api'));
 
 app.use(function(req, res){
     res.status(404).send('Either we lost this page or you clicked an incorrect link!');
