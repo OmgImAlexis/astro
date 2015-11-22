@@ -1,10 +1,14 @@
 var mongoose = require('mongoose');
 
 var torrentSchema = mongoose.Schema({
-    title: String,
+    title: {
+        type: String,
+        index: true
+    },
     category: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Category'
+        ref: 'Category',
+        index: true
     },
     size: Number,
     details: [
@@ -18,7 +22,11 @@ var torrentSchema = mongoose.Schema({
     },
     lastmod: Date,
     imported: Date,
-    infoHash: String
+    infoHash: {
+        type: String,
+        unique: true,
+        index: true
+    }
 });
 
 torrentSchema.index({ title: 'text' });
