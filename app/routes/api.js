@@ -203,17 +203,5 @@ module.exports = (function() {
         });
     });
 
-    app.get('/search/:query/s/:skip', function(req, res){
-        res.send('Welcome to the bitcannon api');
-    });
-
-    app.get('/search/:query/c/:category', function(req, res){
-        res.send('Welcome to the bitcannon api');
-    });
-
-    app.get('/search/:query/c/:category/s/:skip', function(req, res){
-        res.send('Welcome to the bitcannon api');
-    });
-
     return app;
 })();
