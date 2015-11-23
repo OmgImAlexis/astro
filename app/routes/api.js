@@ -1,7 +1,6 @@
 var express = require('express'),
     nconf = require('nconf'),
     async = require('async'),
-    lineByLineReader = require('line-by-line'),
     Torrent = require('models/Torrent.js'),
     Category = require('models/Category.js');
 
@@ -10,48 +9,67 @@ module.exports = (function() {
 
     app.get('/import', function(req, res){
         res.send('Starting import');
+        console.log('Starting import');
         console.time("import");
-        var lr = new lineByLineReader('import.txt');
-        lr.on('line', function (line) {
-            line = line.split('|');
-            Category.findOne({
-                $or: [
-                   { 'title': new RegExp(line[2], 'i') },
-                   { 'aliases': new RegExp(line[2], 'i') }
-                ]
-            }).exec(function(err, category){
-                if(err) {console.log(err);}
-                if(category){
-                    Torrent.create({
-                        title: line[1],
-                        category: category._id,
-                        size: line[5],
-                        details: [
-                            line[3]
-                        ],
-                        swarm: {
-                            seeders: line[8],
-                            leechers: line[9]
-                        },
-                        lastmod: Date.now(),
-                        imported: Date.now(),
-                        infoHash: line[0]
-                    }, function(err, torrent) {
-                        if(err) {
-                            if(err.code !== 11000){
-                                console.log(err);
+        var fs = require('fs'),
+            es = require("event-stream");
+
+        var lineNumber = 1;
+
+        var s = fs.createReadStream('import.txt').pipe(es.split()).pipe(es.mapSync(function(line){
+            // pause the readstream
+            s.pause();
+
+            lineNumber += 1;
+
+            (function(){
+                line = line.split('|');
+                console.log('processing line ' + lineNumber);
+                Category.findOne({
+                    $or: [
+                       { 'title': new RegExp(line[2], 'i') },
+                       { 'aliases': new RegExp(line[2], 'i') }
+                    ]
+                }).exec(function(err, category){
+                    if(err) {console.log(err);}
+                    if(category){
+                        Torrent.create({
+                            title: line[1],
+                            category: category._id,
+                            size: line[5],
+                            details: [
+                                line[3]
+                            ],
+                            swarm: {
+                                seeders: line[8],
+                                leechers: line[9]
+                            },
+                            lastmod: Date.now(),
+                            imported: Date.now(),
+                            infoHash: line[0]
+                        }, function(err, torrent) {
+                            if(err) {
+                                if(err.code !== 11000){
+                                    console.log(err);
+                                }
+                            } else {
+                                console.log(torrent.infoHash + ' added');
                             }
-                        } else {
-                            console.log(torrent.infoHash + ' added');
-                        }
-                    });
-                }
-            });
-        });
-        lr.on('end', function () {
-            console.log('All lines are read, file is closed now.');
+                            // resume the readstream
+                            s.resume();
+                        });
+                    } else {
+                        // resume the readstream
+                        s.resume();
+                    }
+                });
+            })();
+        }).on('error', function(){
+            console.log('Error while reading file.');
+        }).on('end', function(){
+            console.log('Read entirefile.');
             console.timeEnd("import");
-        });
+        }));
     });
 
     app.get('/', function(req, res){
@@ -82,7 +100,9 @@ module.exports = (function() {
     });
 
     app.get('/browse', function(req, res){
-        Category.find({}).sort("title", -1).lean().exec(function(err, categories){
+        Category.find({}).sort({
+            'title': 1
+        }).lean().exec(function(err, categories){
             if(err) { console.log(err); }
             async.each(categories, function(category, callback) {
                 Torrent.count({
@@ -101,8 +121,30 @@ module.exports = (function() {
         });
     });
 
-    app.get('/browse/:category', function(req, res){
-        res.send('Welcome to the bitcannon api');
+    app.get('/category/:slug', function(req, res){
+        async.waterfall([
+            function(callback) {
+                Category.findOne({slug: req.params.slug}).exec(function(err, category){
+                    if(err) { callback(err); }
+                    if(category){
+                        callback(null, category);
+                    }
+                });
+            },
+            function(category, callback) {
+                Torrent.find({
+                    category: category._id
+                }).limit(nconf.get('web:torrentsPerPage')).populate('category').sort('_id').exec(function(err, torrents) {
+                    if(err) { console.log(err); }
+                    callback(null, torrents);
+                });
+            }
+        ], function (err, torrents) {
+            if(err) { console.log(err); }
+            res.json({
+                torrents: torrents
+            });
+        });
     });
 
     app.get('/torrent/:infoHash', function(req, res){
@@ -114,8 +156,51 @@ module.exports = (function() {
         });
     });
 
-    app.get('/search/:query', function(req, res){
-        res.send('Welcome to the bitcannon api');
+    app.get('/search', function(req, res){
+        console.time('/api/search');
+        var limit = req.query.limit || nconf.get('web:torrentsPerPage'),
+            sorting = (req.query.sort || nconf.get('web:defaultSearchSorting')).toLowerCase(),
+            order = (req.query.order || nconf.get('web:defaultSearchOrder')).toLowerCase(),
+            sort = {},
+            search = {};
+        async.waterfall([
+            function(callback) {
+                if(req.query.category){
+                    Category.findOne({slug: req.query.category}).exec(function(err, category){
+                        if(err) { callback(err); }
+                        if(category){
+                            callback(null, category);
+                        }
+                    });
+                } else {
+                    callback(null, null);
+                }
+            },
+            function(category, callback) {
+                if(req.query.q){
+                    if(category === null){
+                        search = { $text: { $search: req.query.q }};
+                    } else {
+                        search = { $text: { $search: req.query.q }, category: category._id };
+                    }
+                }
+                sort[((sorting === 'seeders' || sorting === 'leechers') ? 'swarm.' : '') + sorting] = (order === 'asc' ? 1 : -1);
+                Torrent.find(search, {
+                    score: {
+                        $meta: 'textScore'
+                    }
+                }).limit(limit).sort(sort).populate('category').exec(function(err, torrents) {
+                    if(err) { console.log(err); }
+                    callback(null, torrents);
+                });
+            }
+        ], function (err, torrents) {
+            if(err) { console.log(err); }
+            console.timeEnd('/api/search');
+            res.json({
+                torrents: torrents
+            });
+        });
     });
 
     app.get('/search/:query/s/:skip', function(req, res){
