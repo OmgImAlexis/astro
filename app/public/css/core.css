@@ -1,0 +1,25 @@
+/* Push content to start at the bottom of the navbar */
+body {
+  padding-top: 60px;
+}
+
+/* Ensures that the brand button clickable area is full height */
+.navbar-brand {
+  height: 60px;
+}
+
+.alert {
+  margin-top: 20px;
+}
+
+/* Remove dotted outline on focused elements */
+a:focus, a:active,
+button::-moz-focus-inner,
+input[type="reset"]::-moz-focus-inner,
+input[type="button"]::-moz-focus-inner,
+input[type="submit"]::-moz-focus-inner,
+select::-moz-focus-inner,
+input[type="file"] > input[type="button"]::-moz-focus-inner {
+    border: 0;
+    outline : 0;
+}

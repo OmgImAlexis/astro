@@ -1,0 +1,10 @@
+extends ./layouts/main
+
+block content
+    .container
+        .row
+            for category in categories
+                .col-md-3
+                    h3
+                        a(href="/category/" + category.slug) #{category.title}
+                    p #{category.torrentCount} torrents in this category
