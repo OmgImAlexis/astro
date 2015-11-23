@@ -30,7 +30,9 @@ module.exports = (function() {
     });
 
     app.get('/browse', function(req, res){
-        Category.find({}).sort("title", -1).lean().exec(function(err, categories){
+        Category.find({}).sort({
+            'title': 1
+        }).lean().exec(function(err, categories){
             if(err) { console.log(err); }
             async.each(categories, function(category, callback) {
                 Torrent.count({
