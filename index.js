@@ -32,9 +32,13 @@ var log = bunyan.createLogger({
     ]
 });
 
-mongoose.connect('mongodb://' + nconf.get('database:host') + ':' + nconf.get('database:port') + '/' + nconf.get('database:collection'), function(err){
-    if(err){ console.log('Cannot connect to mongodb, please check your config.json'); process.exit(1); }
-});
+if(nconf.get('database:mongodb:enabled')){
+    mongoose.connect('mongodb://' + nconf.get('database:mongodb:host') + ':' + nconf.get('database:mongodb:port') + '/' + nconf.get('database:mongodb:collection'), function(err){
+        if(err){ console.log('Cannot connect to mongodb, please check your config.json'); process.exit(1); }
+    });
+} else {
+    console.log('No database is enabled, please check your config.json'); process.exit(1);
+}
 
 var app = express();
 
