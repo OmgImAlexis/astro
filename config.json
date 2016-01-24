@@ -1,0 +1,36 @@
+{
+    "web": {
+        "port": 3000,
+        "title": "BitCannon",
+        "torrentsPerPage": 100,
+        "defaultSearchSorting": "seeders",
+        "defaultSearchOrder": "desc"
+    },
+    "database": {
+        "mongodb": {
+            "enabled": true,
+            "host": "localhost",
+            "port": 27017,
+            "collection": "bitcannon"
+        }
+    },
+    "session": {
+        "secret": "asdasdasdasd43jn5kj2n43k"
+    },
+    "trackers": "",
+    "downloads": {
+        "hourly": {
+            "kat": ""
+        },
+        "daily": {
+            "tpb": ""
+        }
+    },
+    "api": {
+        "keyNeeded": true,
+        "key": "random_key"
+    },
+    "logs": {
+        "location": "./logs/error.log"
+    }
+}
