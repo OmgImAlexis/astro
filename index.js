@@ -15,7 +15,9 @@ var express = require('express'),
     compression = require('compression');
 
 nconf.use('memory');
-nconf.argv().env().file({ file: './config.json' });
+nconf.argv().env('__').file({
+    file: './config.json'
+});
 
 var log = bunyan.createLogger({
     name: 'Bitcannon',
@@ -24,10 +26,9 @@ var log = bunyan.createLogger({
         {
             level: 'info',
             stream: process.stdout // log INFO and above to stdout
-        },
-        {
+        }, {
             level: 'error',
-            path: path.resolve('./logs/error.log') // log ERROR and above to a file
+            path: path.resolve(nconf.get('logs:location')) // log ERROR and above to a file
         }
     ]
 });
@@ -47,7 +48,9 @@ app.disable('x-powered-by');
 app.set('views', __dirname + '/app/views');
 app.set('view engine', 'jade');
 app.use(compression());
-app.use(express.static(__dirname + '/app/public', { maxAge: 86400000 }));
+app.use(express.static(__dirname + '/app/public', {
+    maxAge: 86400000
+}));
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({
     extended: true
@@ -57,7 +60,9 @@ app.use(methodOverride());
 app.use(session({
     secret: nconf.get('session:secret'),
     name: 'session',
-    store: new MongoStore({mongooseConnection: mongoose.connection}),
+    store: new MongoStore({
+        mongooseConnection: mongoose.connection
+    }),
     proxy: true,
     resave: true,
     saveUninitialized: true
@@ -81,4 +86,6 @@ app.use(function(req, res){
     });
 });
 
-http.createServer(app).listen(nconf.get('web:port'), '0.0.0.0');
+http.createServer(app).listen(nconf.get('web:port'), '0.0.0.0', function(){
+    console.log('Running on port '+ nconf.get('web:port'));
+});
