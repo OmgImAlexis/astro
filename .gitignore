@@ -42,7 +42,7 @@ Temporary Items
 .apdisk
 
 # Config file
-config.json
+#config.json
 
 # Torrent dumps
 import.txt
