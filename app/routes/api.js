@@ -1,5 +1,8 @@
 var express = require('express'),
     nconf = require('nconf'),
+    fs = require('fs'),
+    es = require("event-stream"),
+    path = require('path'),
     async = require('async'),
     Torrent = require('models/Torrent.js'),
     Category = require('models/Category.js');
@@ -11,12 +14,12 @@ module.exports = (function() {
         res.send('Starting import');
         console.log('Starting import');
         console.time("import");
-        var fs = require('fs'),
-            es = require("event-stream");
-
         var lineNumber = 1;
 
-        var s = fs.createReadStream('import.txt').pipe(es.split()).pipe(es.mapSync(function(line){
+        // Currently we only support kat
+        // To import add the file the imports directory and name it kat.txt
+        // This imports around 500 lines per second, hourly dumps take ~30s
+        var s = fs.createReadStream(path.resolve('imports/kat.txt')).pipe(es.split()).pipe(es.mapSync(function(line){
             // pause the readstream
             s.pause();
 
@@ -33,30 +36,33 @@ module.exports = (function() {
                 }).exec(function(err, category){
                     if(err) {console.log(err);}
                     if(category){
-                        Torrent.create({
-                            title: line[1],
-                            category: category._id,
-                            size: line[5],
-                            details: [
-                                line[3]
-                            ],
-                            swarm: {
-                                seeders: line[8],
-                                leechers: line[9]
-                            },
-                            lastmod: Date.now(),
-                            imported: Date.now(),
+                        Torrent.findOne({
                             infoHash: line[0]
-                        }, function(err, torrent) {
-                            if(err) {
-                                if(err.code !== 11000){
-                                    console.log(err);
-                                }
+                        }).exec(function(err, exists){
+                            if(!exists){
+                                Torrent.create({
+                                    title: line[1],
+                                    category: category._id,
+                                    size: line[5],
+                                    details: [
+                                        line[3]
+                                    ],
+                                    swarm: {
+                                        seeders: line[8],
+                                        leechers: line[9]
+                                    },
+                                    lastmod: Date.now(),
+                                    imported: Date.now(),
+                                    infoHash: line[0]
+                                }, function(err) {
+                                    if(err) { console.log(err); }
+                                    // resume the readstream
+                                    s.resume();
+                                });
                             } else {
-                                console.log(torrent.infoHash + ' added');
+                                // resume the readstream
+                                s.resume();
                             }
-                            // resume the readstream
-                            s.resume();
                         });
                     } else {
                         // resume the readstream
@@ -102,16 +108,23 @@ module.exports = (function() {
     app.get('/browse', function(req, res){
         Category.find({}).sort({
             'title': 1
-        }).lean().exec(function(err, categories){
+        }).exec(function(err, categories){
             if(err) { console.log(err); }
             async.each(categories, function(category, callback) {
-                Torrent.count({
-                    category: category._id
-                }).exec(function(err, torrentCount){
-                    if(err) { console.log(err); }
-                    category.torrentCount = torrentCount;
+                // This is to check if the calculation is already done for the category
+                // If a new one is added and the calculation isn't done then it does it and saves it for later
+                if(category.torrentCount < 0 || !category.torrentCount){
+                    Torrent.count({
+                        category: category._id
+                    }).exec(function(err, torrentCount){
+                        if(err) { console.log(err); }
+                        category.torrentCount = torrentCount;
+                        category.save();
+                        callback(null);
+                    });
+                } else {
                     callback(null);
-                });
+                }
             }, function(err){
                 if(err) { console.log(err); }
                 res.json({
@@ -124,7 +137,9 @@ module.exports = (function() {
     app.get('/category/:slug', function(req, res){
         async.waterfall([
             function(callback) {
-                Category.findOne({slug: req.params.slug}).exec(function(err, category){
+                Category.findOne({
+                    slug: req.params.slug
+                }).exec(function(err, category){
                     if(err) { callback(err); }
                     if(category){
                         callback(null, category);
@@ -148,7 +163,9 @@ module.exports = (function() {
     });
 
     app.get('/torrent/:infoHash', function(req, res){
-        Torrent.findOne({infoHash: req.params.infoHash}).populate('category').exec(function(err, torrent){
+        Torrent.findOne({
+            infoHash: req.params.infoHash
+        }).populate('category').exec(function(err, torrent){
             if(err){ console.log(err); }
             res.json('torrent',{
                 torrent: torrent
@@ -166,7 +183,9 @@ module.exports = (function() {
         async.waterfall([
             function(callback) {
                 if(req.query.category){
-                    Category.findOne({slug: req.query.category}).exec(function(err, category){
+                    Category.findOne({
+                        slug: req.query.category
+                    }).exec(function(err, category){
                         if(err) { callback(err); }
                         if(category){
                             callback(null, category);

@@ -1,4 +1,5 @@
-var mongoose = require('mongoose');
+var mongoose = require('mongoose'),
+    Category = require('./Category.js');
 
 var torrentSchema = mongoose.Schema({
     title: {
@@ -29,6 +30,25 @@ var torrentSchema = mongoose.Schema({
     }
 });
 
-torrentSchema.index({ title: 'text' });
+torrentSchema.index({
+    title: 'text'
+});
+
+torrentSchema.pre('save', function (next) {
+    if (this.isNew) {
+        Category.update({
+            _id: this.category
+        },{
+            $inc: { torrentCount: 1 }
+        }).exec(function(err, updatedDoc){
+            if(err){ console.log(err); }
+            if(updatedDoc){
+                next();
+            } else {
+                console.log('We couldn\'t update the torrent count');
+            }
+        });
+    }
+});
 
 module.exports = mongoose.model('Torrent', torrentSchema);

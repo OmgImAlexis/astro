@@ -5,7 +5,8 @@ var categorySchema = mongoose.Schema({
     slug: String,
     aliases: [
         String
-    ]
+    ],
+    torrentCount: Number
 });
 
 function slugify(text) {

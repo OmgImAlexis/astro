@@ -32,16 +32,21 @@ module.exports = (function() {
     app.get('/browse', function(req, res){
         Category.find({}).sort({
             'title': 1
-        }).lean().exec(function(err, categories){
+        }).exec(function(err, categories){
             if(err) { console.log(err); }
             async.each(categories, function(category, callback) {
-                Torrent.count({
-                    category: category._id
-                }).exec(function(err, torrentCount){
-                    if(err) { console.log(err); }
-                    category.torrentCount = torrentCount;
+                if(category.torrentCount < 0){
+                    Torrent.count({
+                        category: category._id
+                    }).exec(function(err, torrentCount){
+                        if(err) { console.log(err); }
+                        category.torrentCount = torrentCount;
+                        category.save();
+                        callback(null);
+                    });
+                } else {
                     callback(null);
-                });
+                }
             }, function(err){
                 if(err) { console.log(err); }
                 res.render('browse', {
