@@ -20,7 +20,10 @@
     "trackers": "",
     "downloads": {
         "hourly": {
-            "kat": ""
+            "kat": {
+                "enabled": true,
+                "apiKey": "fknelkn32l4kn23l4kn23lk4n"
+            }
         },
         "daily": {
             "tpb": ""
