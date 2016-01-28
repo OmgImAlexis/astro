@@ -59,7 +59,9 @@ module.exports = (function() {
     app.get('/category/:slug', function(req, res){
         async.waterfall([
             function(callback) {
-                Category.findOne({slug: req.params.slug}).exec(function(err, category){
+                Category.findOne({
+                    slug: req.params.slug
+                }).exec(function(err, category){
                     if(err) { callback(err); }
                     if(category){
                         callback(null, category);

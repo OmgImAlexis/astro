@@ -16,7 +16,7 @@ var express = require('express'),
 
 nconf.use('memory');
 nconf.argv().env('__').file({
-    file: './config.json'
+    file: path.resolve(__dirname + '/config.json')
 });
 
 var log = bunyan.createLogger({

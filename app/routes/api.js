@@ -1,7 +1,7 @@
 var express = require('express'),
     nconf = require('nconf'),
     fs = require('fs'),
-    es = require("event-stream"),
+    es = require('event-stream'),
     path = require('path'),
     async = require('async'),
     Torrent = require('models/Torrent.js'),
