@@ -18,6 +18,16 @@
         "secret": "asdasdasdasd43jn5kj2n43k"
     },
     "trackers": "",
+    "providers": [
+        {
+            "name": "kat",
+            "enabled": true
+        },
+        {
+            "name": "torrentproject",
+            "enabled": true
+        }
+    ],
     "downloads": {
         "hourly": {
             "kat": {
