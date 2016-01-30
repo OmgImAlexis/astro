@@ -8,35 +8,21 @@ var Torrent = require('models/Torrent.js');
 
 var bunyan = require('bunyan');
 
-// Sets up Bunyan to log to the same file as the BitCannon Server - Could this cause problems?
-var log = bunyan.createLogger({
-    name: 'Bitcannon',
-    version: require('../../package.json').version,
-    streams: [
-        {
-            level: 'info',
-            stream: process.stdout // log INFO and above to stdout
-        }, {
-            level: 'error',
-            // log ERROR and above to a file
-            path: path.resolve('../' + nconf.get('logs:location'))
-        }
-    ]
-});
+var log = bunyan.logger;
 
 if(nconf.get('database:mongodb:enabled')){
     mongoose.connect('mongodb://' + nconf.get('database:mongodb:host') + ':' + nconf.get('database:mongodb:port') + '/' + nconf.get('database:mongodb:collection'), function(err){
-        // We should be able to ignore this error. As far as I understand, this error isn't actually an error and just means there are still open connection to MongoDB. Mongoose
-        // should still work fine.
         if (err) {
+            // We should be able to ignore this error. As far as I understand, this error isn't actually an error and just means there are still open connection to MongoDB. Mongoose
+            // should still work fine.
             if((err.message) !== 'Trying to open unclosed connection.') {
-                console.log('Cannot connect to mongodb, please check your config.json');
+                log.warn('Cannot connect to mongodb, please check your config.json');
                 process.exit(1);
             }
         }
     });
 } else {
-    console.log('No database is enabled, please check your config.json'); process.exit(1);
+    log.warn('No database is enabled, please check your config.json'); process.exit(1);
 }
 
 var duration = undefined;
@@ -66,7 +52,7 @@ if(!isNaN(duration)) {
                     var lines = data.toString().split(/\r?\n/);
                     lines.forEach(function (line) {
                         line = line.split('|');
-                        console.log('Processing ' + line[1]);
+                        log.info('Processing ' + line[1]);
                         Category.findOne({
                             $or: [
                                 {'title': new RegExp(line[2], 'i')},
@@ -74,7 +60,7 @@ if(!isNaN(duration)) {
                             ]
                         }).exec(function (err, category) {
                             if (err) {
-                                console.warn(err);
+                                log.warn(err);
                             }
                             if (category) {
                                 Torrent.findOne({
@@ -97,7 +83,7 @@ if(!isNaN(duration)) {
                                             infoHash: line[0]
                                         }, function (err) {
                                             if (err) {
-                                                console.warn(err);
+                                                log.warn(err);
                                             }
                                         });
                                     }
@@ -106,18 +92,18 @@ if(!isNaN(duration)) {
                         });
                     });
                 }).on('error', function (err) {
-                    console.warn(err);
+                    log.warn(err);
                 }).on('end', function () {
 
                 });
             } else {
-                console.log('Kat API key is invalid');
+                log.error('Kat API key is invalid');
                 process.exit(1);
             }
         }).on('error', function (err) {
-            console.warn(err);
+            log.warn(err);
         });
     }, duration);
 } else {
-    console.warn('Invalid duration for provider kat'); // To Do: Add proper logging here
+    log.warn('Invalid duration for provider kat'); // To Do: Add proper logging here
 }

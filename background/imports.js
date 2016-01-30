@@ -10,14 +10,22 @@ nconf.argv().env('__').file({
 
 var bunyan = require('bunyan');
 
-// Sets up Bunyan to log to the same file as the BitCannon Server - Could this cause problems?
-var log = bunyan.createLogger({
+bunyan.formatBunyanInfoLog = function() {};
+bunyan.formatBunyanInfoLog.prototype.write = function (rec) {
+    console.log('[%s] %s: %s',
+        rec.time,
+        bunyan.nameFromLevel[rec.level],
+        rec.msg);
+};
+
+bunyan.logger = bunyan.createLogger({
     name: 'Bitcannon',
     version: require('../package.json').version,
     streams: [
         {
             level: 'info',
-            stream: process.stdout // log INFO and above to stdout
+            stream: new bunyan.formatBunyanInfoLog(), // log INFO and above to stdout
+            type: 'raw'
         }, {
             level: 'error',
             // log ERROR and above to a file
@@ -26,9 +34,11 @@ var log = bunyan.createLogger({
     ]
 });
 
+var log = bunyan.logger;
+
 for(var provider in nconf.get('providers')) {
     if(nconf.get('providers:' + provider + ':enabled')) {
-        console.log('Loading provider ' + provider);
+        log.info('Loading provider ' + provider);
         require(__dirname + '/providers/' + provider);
     }
 }
