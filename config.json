@@ -18,28 +18,22 @@
         "secret": "asdasdasdasd43jn5kj2n43k"
     },
     "trackers": "",
-    "providers": [
-        {
-            "name": "kat",
-            "enabled": true
-        },
-        {
-            "name": "torrentproject",
-            "enabled": true
-        }
-    ],
-    "downloads": {
-        "hourly": {
-            "kat": {
-                "enabled": true,
+    "providers": {
+        "kat": {
+            "enabled": true,
+            "config": {
+                "duration": "@hourly",
                 "apiKey": "fknelkn32l4kn23l4kn23lk4n"
-            },
-            "torrentproject": {
-                "enabled": true
             }
         },
-        "daily": {
-            "tpb": ""
+        "torrentproject": {
+            "enabled": true,
+            "config": {
+                "duration": "@hourly"
+            }
+        },
+         "tpb": {
+            "enabled": false
         }
     },
     "api": {
