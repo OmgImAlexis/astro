@@ -6,6 +6,24 @@ var mongoose = require('mongoose');
 var Category = require('models/Category.js');
 var Torrent = require('models/Torrent.js');
 
+var bunyan = require('bunyan');
+
+// Sets up Bunyan to log to the same file as the BitCannon Server - Could this cause problems?
+var log = bunyan.createLogger({
+    name: 'Bitcannon',
+    version: require('../../package.json').version,
+    streams: [
+        {
+            level: 'info',
+            stream: process.stdout // log INFO and above to stdout
+        }, {
+            level: 'error',
+            // log ERROR and above to a file
+            path: path.resolve('../' + nconf.get('logs:location'))
+        }
+    ]
+});
+
 if(nconf.get('database:mongodb:enabled')){
     mongoose.connect('mongodb://' + nconf.get('database:mongodb:host') + ':' + nconf.get('database:mongodb:port') + '/' + nconf.get('database:mongodb:collection'), function(err){
         // We should be able to ignore this error. As far as I understand, this error isn't actually an error and just means there are still open connection to MongoDB. Mongoose
@@ -13,7 +31,6 @@ if(nconf.get('database:mongodb:enabled')){
         if (err) {
             if((err.message) !== 'Trying to open unclosed connection.') {
                 console.log('Cannot connect to mongodb, please check your config.json');
-                console.dir(err);
                 process.exit(1);
             }
         }
@@ -57,7 +74,7 @@ if(!isNaN(duration)) {
                             ]
                         }).exec(function (err, category) {
                             if (err) {
-                                console.log(err);
+                                console.warn(err);
                             }
                             if (category) {
                                 Torrent.findOne({
@@ -80,7 +97,7 @@ if(!isNaN(duration)) {
                                             infoHash: line[0]
                                         }, function (err) {
                                             if (err) {
-                                                console.log(err);
+                                                console.warn(err);
                                             }
                                         });
                                     }
@@ -89,7 +106,7 @@ if(!isNaN(duration)) {
                         });
                     });
                 }).on('error', function (err) {
-                    console.log(err);
+                    console.warn(err);
                 }).on('end', function () {
 
                 });
@@ -98,7 +115,7 @@ if(!isNaN(duration)) {
                 process.exit(1);
             }
         }).on('error', function (err) {
-            console.log(err);
+            console.warn(err);
         });
     }, duration);
 } else {
