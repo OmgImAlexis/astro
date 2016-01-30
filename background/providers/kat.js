@@ -10,21 +10,6 @@ var bunyan = require('bunyan');
 
 var log = bunyan.logger;
 
-if(nconf.get('database:mongodb:enabled')){
-    mongoose.connect('mongodb://' + nconf.get('database:mongodb:host') + ':' + nconf.get('database:mongodb:port') + '/' + nconf.get('database:mongodb:collection'), function(err){
-        if (err) {
-            // We should be able to ignore this error. As far as I understand, this error isn't actually an error and just means there are still open connection to MongoDB. Mongoose
-            // should still work fine.
-            if((err.message) !== 'Trying to open unclosed connection.') {
-                log.warn('Cannot connect to mongodb, please check your config.json');
-                process.exit(1);
-            }
-        }
-    });
-} else {
-    log.warn('No database is enabled, please check your config.json'); process.exit(1);
-}
-
 var duration = undefined;
 
 switch(nconf.get('providers:kat:config:duration')) {

@@ -2,6 +2,7 @@ require('app-module-path').addPath(__dirname + '../../app');
 
 var path = require('path');
 var nconf = require('nconf');
+var mongoose = require('mongoose');
 
 nconf.use('memory');
 nconf.argv().env('__').file({
@@ -35,6 +36,17 @@ bunyan.logger = bunyan.createLogger({
 });
 
 var log = bunyan.logger;
+
+if(nconf.get('database:mongodb:enabled')){
+    mongoose.connect('mongodb://' + nconf.get('database:mongodb:host') + ':' + nconf.get('database:mongodb:port') + '/' + nconf.get('database:mongodb:collection'), function(err){
+        if (err) {
+            log.warn('Cannot connect to mongodb, please check your config.json');
+            process.exit(1);
+        }
+    });
+} else {
+    log.warn('No database is enabled, please check your config.json'); process.exit(1);
+}
 
 for(var provider in nconf.get('providers')) {
     if(nconf.get('providers:' + provider + ':enabled')) {
