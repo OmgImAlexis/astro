@@ -178,7 +178,11 @@ module.exports = (function() {
         var limit = req.query.limit || nconf.get('web:torrentsPerPage'),
             sorting = (req.query.sort || nconf.get('web:defaultSearchSorting')).toLowerCase(),
             order = (req.query.order || nconf.get('web:defaultSearchOrder')).toLowerCase(),
-            sort = {},
+            sort = {
+                score: {
+                    $meta: 'textScore'
+                }
+            },
             search = {};
         async.waterfall([
             function(callback) {
