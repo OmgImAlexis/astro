@@ -3,17 +3,20 @@ var zlib = require('zlib');
 var path = require('path');
 var nconf = require('nconf');
 var mongoose = require('mongoose');
-var Category = require('../../app/models/Category.js');
-var Torrent = require('../../app/models/Torrent.js');
-
-nconf.use('memory');
-nconf.argv().env('__').file({
-    file: path.resolve(__dirname + '/../../config.json')
-});
+var Category = require('models/Category.js');
+var Torrent = require('models/Torrent.js');
 
 if(nconf.get('database:mongodb:enabled')){
     mongoose.connect('mongodb://' + nconf.get('database:mongodb:host') + ':' + nconf.get('database:mongodb:port') + '/' + nconf.get('database:mongodb:collection'), function(err){
-        if(err){ console.log('Cannot connect to mongodb, please check your config.json'); process.exit(1); }
+        // We should be able to ignore this error. As far as I understand, this error isn't actually an error and just means there are still open connection to MongoDB. Mongoose
+        // should still work fine.
+        if (err) {
+            if((err.message) !== 'Trying to open unclosed connection.') {
+                console.log('Cannot connect to mongodb, please check your config.json');
+                console.dir(err);
+                process.exit(1);
+            }
+        }
     });
 } else {
     console.log('No database is enabled, please check your config.json'); process.exit(1);

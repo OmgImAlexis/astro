@@ -1,5 +1,9 @@
+require('app-module-path').addPath(__dirname + '../../app');
+
 var path = require('path');
 var nconf = require('nconf');
+
+var bunyan = require('bunyan');
 
 nconf.use('memory');
 nconf.argv().env('__').file({
