@@ -10,10 +10,6 @@ nconf.argv().env('__').file({
 
 var bunyan = require('bunyan');
 
-console.log((
-    String(nconf.get('logs:location')).substring(0,2) === './'
-) ? path.resolve('../../' + nconf.get('logs:location')) : nconf.get('logs:location'));
-
 // Sets up Bunyan to log to the same file as the BitCannon Server - Could this cause problems?
 var log = bunyan.createLogger({
     name: 'Bitcannon',
