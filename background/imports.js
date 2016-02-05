@@ -9,9 +9,15 @@ nconf.argv().env('__').file({
     file: path.resolve(__dirname + '/../config.json')
 });
 
-
-
 var log = require(__dirname + '/logging.js');
+
+if(
+    nconf.get('torrents:whitelist:enabled') &&
+    nconf.get('torrents:blacklist:enabled')
+) {
+    log.error('You cannot use the whitelist and the blacklist at the same time!');
+    process.exit(1);
+}
 
 if(nconf.get('database:mongodb:enabled')){
     mongoose.connect('mongodb://' + nconf.get('database:mongodb:host') + ':' + nconf.get('database:mongodb:port') + '/' + nconf.get('database:mongodb:collection'), function(err){
