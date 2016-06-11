@@ -55,6 +55,7 @@
         "key": "random_key"
     },
     "logs": {
-        "location": "./logs/error.log"
+        "provider": "default",
+        "location": "logs/error.log"
     }
 }

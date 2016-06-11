@@ -13,6 +13,7 @@ nconf.argv().env('__').file({
 });
 
 var log = require(__dirname + '/logging.js');
+log = new log('imports');
 
 if(
     nconf.get('torrents:whitelist:enabled') &&

@@ -5,6 +5,7 @@ var path = require('path');
 var nconf = require('nconf');
 
 var log = require(__dirname + '/../logging.js');
+log = new log('imports:kat');
 
 var Provider = require(__dirname + '/provider.js');
 
