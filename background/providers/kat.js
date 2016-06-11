@@ -12,7 +12,7 @@ var interval;
 
 class Kat extends Provider {
     run() {
-        https.get('https://kat.cr/api/get_dump/hourly/?userhash=' + nconf.get('providers:kat:config:apiKey'), function (res) {
+        https.get(nconf.get('providers:kat:config:url') + '/?userhash=' + nconf.get('providers:kat:config:apiKey'), function (res) {
             // Kat
             // torrent_info_hash|torrent_name|torrent_category|torrent_info_url|torrent_download_url|size|category_id|files_count|seeders|leechers|upload_date|verified
             if (res.headers['content-type'] === 'application/x-gzip') {
