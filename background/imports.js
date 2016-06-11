@@ -37,7 +37,13 @@ for(var provider in nconf.get('providers')) {
     if(provider !== 'provider') {
         if (nconf.get('providers:' + provider + ':enabled')) {
             log.info('Loading provider ' + provider);
-            require(__dirname + '/providers/' + provider);
+            try {
+                require(__dirname + '/providers/' + provider);
+            } catch (e) {
+                log.info('An error occurred loading the ' + provider + ' provider.');
+                log.info('The error is as follows:');
+                log.error(e);
+            }
         }
     } else
     {

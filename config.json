@@ -46,7 +46,7 @@
                 "url": "https://torrentproject.se/hourlydump.txt.gz"
             }
         },
-         "tpb": {
+        "tpb": {
             "enabled": false
         }
     },
