@@ -24,6 +24,7 @@ class BunyanLogger extends Logger {
 
         this[logger] = bunyan.createLogger({
             name: 'Bitcannon',
+            threadType: threadType,
             version: require('../../package.json').version,
             streams: [
                 {
@@ -33,7 +34,7 @@ class BunyanLogger extends Logger {
                 }, {
                     level: 'error',
                     // log ERROR and above to a file
-                    path: path.resolve('../' + nconf.get('logs:location'))
+                    path: path.resolve(nconf.get('logs:location'))
                 }
             ]
         });
