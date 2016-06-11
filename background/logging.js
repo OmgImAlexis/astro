@@ -1,5 +1,3 @@
-require('app-module-path').addPath(__dirname + '../../app');
-
 var path = require('path');
 
 var nconf = require('nconf');

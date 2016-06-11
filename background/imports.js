@@ -1,5 +1,8 @@
-require('app-module-path').addPath(__dirname + '../../app');
-
+if(!/^win/.test(process.platform)) {
+    require('app-module-path').addPath(__dirname.substring(0, __dirname.lastIndexOf('/')) + '/app');
+} else {
+    require('app-module-path').addPath(__dirname.substring(0, __dirname.lastIndexOf('\\')) + '\\app');
+}
 var path = require('path');
 var nconf = require('nconf');
 var mongoose = require('mongoose');
