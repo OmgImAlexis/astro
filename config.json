@@ -25,7 +25,7 @@
         }
     },
     "session": {
-        "secret": "asdasdasdasd43jn5kj2n43k"
+        "secret": ""
     },
     "trackers": "",
     "providers": {
