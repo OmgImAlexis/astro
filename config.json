@@ -42,7 +42,8 @@
             "enabled": true,
             "config": {
                 "startup": true,
-                "duration": "@hourly"
+                "duration": "@hourly",
+                "url": "https://torrentproject.se/hourlydump.txt.gz"
             }
         },
          "tpb": {

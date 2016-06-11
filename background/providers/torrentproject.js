@@ -13,7 +13,7 @@ var interval;
 
 class TorrentProject extends Provider {
     run() {
-        https.get('https://torrentproject.se/hourlydump.txt.gz', function (res) {
+        https.get(nconf.get('providers:torrentproject:config:url'), function (res) {
             // torrentproject
             // torrent_info_hash|torrent_name|torrent_category|torrent_info_url|torrent_download_url|size|category_id|files_count|seeders|leechers|upload_date|verified
 
