@@ -55,6 +55,9 @@ class Provider {
     }
 
     // Add a torrent to the database
+    // To Do:
+    //      If we have a .torrent file and don't have a magnet link / infohash we should store the .torrent file
+    //      either in a directory or in the database. (See: #19 - https://github.com/bitcannon-org/bitcannon-web/issues/19)
     static addTorrent(title, aliases, size, details, swarm, lastmod, imported, infoHash) {
         // Validate Data
         if(typeof(title) !== 'string' || typeof(infoHash) !== 'string') {
