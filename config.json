@@ -43,7 +43,7 @@
             "config": {
                 "startup": true,
                 "duration": "@hourly",
-                "url": "http://127.0.0.1:8000/dailydump.txt.gz"
+                "url": "https://torrentproject.se/hourlydump.txt.gz"
             }
         },
         "tpb": {
