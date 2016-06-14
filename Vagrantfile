@@ -65,13 +65,12 @@ Vagrant.configure(2) do |config|
   # Puppet, Chef, Ansible, Salt, and Docker are also available. Please see the
   # documentation for more information about their specific syntax and use.
   config.vm.provision "shell", inline: <<-SHELL
-     sudo apt-get update
-     DEBIAN_FRONTEND=noninteractive sudo apt-get install -y build-essential git mongodb mongodb-server
-     su root -c 'curl -L https://git.io/n-install -O && bash n-install -y && rm n-install'
-     su root -c 'bash -c "cd $HOME; \
-     . /root/.bashrc; \
-     /root/n/bin/n 6.2.1 && cd /vagrant \
-     && git checkout develop \
-     && /root/n/bin/npm install"'
+     sudo apt-get -qq update
+     DEBIAN_FRONTEND=noninteractive sudo apt-get install -y build-essential git mongodb mongodb-server &>/dev/null
+     su root -c 'curl -L https://git.io/n-install -O &>/dev/null 2>&1; bash n-install -q; rm n-install'
+     /root/n/bin/n 6.2.1 && \
+     cd /vagrant && \
+     /root/n/bin/npm install
+     /root/n/bin/node background/imports.js
   SHELL
 end
