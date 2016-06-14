@@ -21,8 +21,14 @@ var torrentSchema = mongoose.Schema({
         seeders: Number,
         leechers: Number
     },
-    lastmod: Date,
-    imported: Date,
+    lastmod: {
+        type: Date,
+        default: Date.now()
+    },
+    imported: {
+        type: Date,
+        default: Date.now()
+    },
     infoHash: {
         type: String,
         unique: true,

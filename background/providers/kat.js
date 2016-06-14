@@ -1,17 +1,30 @@
+/**
+ * @file Provides a class for Kat
+ * @todo Move the startup code to the provider baseclass since it's duplicated across providers
+ * @todo Don't call Kat.run() if a run is already in progress. If a run is in progress
+ * then don't do anything until the gunzip.on('end') event is triggered.
+ */
 'use strict';
 var https = require('https');
 var zlib = require('zlib');
 var path = require('path');
 var nconf = require('nconf');
 
-var log = require(__dirname + '/../logging.js');
-log = new log('imports:kat');
-
 var Provider = require(__dirname + '/provider.js');
 
 var interval;
 
+var log;
+
+/**
+ * Class representing a {@link https://kat.cr|kickasstorrents} archive provider
+ * @extends Provider
+ */
 class Kat extends Provider {
+    constructor(provider) {
+        super(provider);
+        log = this.log;
+    }
     run() {
         https.get(nconf.get('providers:kat:config:url') + '/?userhash=' + nconf.get('providers:kat:config:apiKey'), function (res) {
             // Kat
@@ -39,7 +52,7 @@ class Kat extends Provider {
                                 Date.now(), // lastmod
                                 Date.now(), // imported
                                 line[0] // infoHash
-                            )
+                            );
                         }
                     });
                 }).on('error', function (err) {

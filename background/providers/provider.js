@@ -1,15 +1,52 @@
+/**
+ * @file Provides a baseclass for archive providers
+ */
+
 'use strict';
 var nconf = require('nconf');
 
-var mongoose = require('mongoose');
-var Category = require('models/Category.js');
-var Torrent = require('models/Torrent.js');
+var MongoClient = require('mongodb').MongoClient;
+var uri = 'mongodb://' + nconf.get('database:mongodb:host') + ':' + nconf.get('database:mongodb:port') + '/' + nconf.get('database:mongodb:collection');
+var db;
 
-var log = require(__dirname + '/../logging.js');
+/**
+ * will reuse connection if already created
+ * @todo Move this to a seperate module along
+ * with any other database code.
+ */ 
+function connect(callback) {
+    if (db === undefined) {
+        MongoClient.connect(uri, {
+            poolSize: 10000000,
+            raw: true
+        }, function(err, conn) {
+            if(err) { 
+                return callback(err);
+            }
+            db = conn;
+            callback(null, conn);
+        });  
+    } else {
+        callback(null, db);
+    }
+}
+
 var torrentsToAdd = [];
+var log;
+
+/**
+ * Class representing an archive provider
+ * @todo Move database code into a separate module. This will pave the way for using other databases.
+ */
 class Provider {
+    /**
+     * Constructs a Provider
+     * @param {string} provider - The name of an archive provider
+     */
     constructor(provider) {
-        // Set the duration a provider should run
+        this.log = require(__dirname + '/../logging.js');
+        log = this.log = new this.log('imports:' + provider);
+        // Sets the duration a provider should run
         switch(nconf.get('providers:' + provider + ':config:duration')) {
             case '@hourly':
                 this.duration = 3600000;
@@ -21,44 +58,50 @@ class Provider {
                 this.duration = Number(nconf.get('providers:' + provider + ':config:duration'));
         }
 
-        // Set whether or not a provider should run at startup
+        // Sets whether or not a provider should run at startup
         if(typeof(nconf.get('providers:' + provider + ':config:startup')) === 'boolean') {
             this.runAtStartup = nconf.get('providers:' + provider + ':config:startup');
         } else {
             this.runAtStartup = false;
         }
+        connect(function(err, conn) {
+            if(err) {
+                log.warn('Cannot connect to mongodb, please check your config.json');
+                process.exit(1);
+            }
+            db = conn;
+            console.log("Connected correctly to server");
+        });
     }
 
-    // Checks if a torrent should be added to the database
+    /**
+     * Checks if a torrent should be added to the database
+     * @param {string} category - A torrents category
+     */
     static shouldAddTorrent(category) {
         if(nconf.get('torrents:whitelist:enabled')) {
-            if(nconf.get('torrents:whitelist:categories').forEach(function(el) {
-                    if(el.toUpperCase() === category.toUpperCase()) {
-                        return true;
-                    }
-             })) {
-                return true;
+            for(var i = 0; i < nconf.get('torrents:whitelist:categories'); i++) {
+                if(category.toUpperCase() === nconf.get('torrents:whitelist:categories')[i]) {
+                    return true;
+                }
             }
         } else if(nconf.get('torrents:blacklist:enabled')) {
-            if(!nconf.get('torrents:blacklist:categories').forEach(function(el) {
-                    if(el.toUpperCase() === category.toUpperCase()) {
-                        return true;
-                    }
-             })) {
-                return true;
+            for(var j = 0; j < nconf.get('torrents:blacklist:enabled'); j++) {
+                if(category.toUpperCase() === nconf.get('torrents:blacklist:categories')[j]) {
+                    return false;
+                }
             }
-        } else {
-            return true;
         }
 
-        return false;
+        return true;
     }
 
-    // Add a torrent to the database
-    // To Do:
-    //      If we have a .torrent file and don't have a magnet link / infohash we should store the .torrent file
-    //      either in a directory or in the database. (See: #19 - https://github.com/bitcannon-org/bitcannon-web/issues/19)
+    /** Add a torrent to the database
+      * @todo If we have a .torrent file and don't have a magnet link / infohash we should store the .torrent file
+      * either in a directory or in the database. ({@link https://github.com/bitcannon-org/bitcannon-web/issues/19|#19})
+      */
     static addTorrent(title, aliases, size, details, swarm, lastmod, imported, infoHash) {
+
         // Validate Data
         if(typeof(title) !== 'string' || typeof(infoHash) !== 'string') {
             // Bail out because we don't have a title or infoHash
@@ -92,97 +135,37 @@ class Provider {
                     delete swarm[key];
                 }
             }
-            if(!swarm.hasOwnProperty('seeders')) {
+            if(typeof(swarm.seeders) !== 'number') {
                 swarm.seeders = 0;
             }
-            if(!swarm.hasOwnProperty('leechers')) {
+            if(typeof(swarm.leechers) !== 'number') {
                 swarm.leechers = 0;
             }
         }
-         Category.findOne({
-         $or: [
-            {'title': new RegExp(aliases, 'i')},
-            {'aliases': new RegExp(aliases, 'i')}
-         ]
-         }).exec(function (err, category) {
-             if (err) {
+        connect(function(err, db) {
+            if(err) {
                 log.warn(err);
-             }
-             // If the category does not exist then add it to the database
-             if(!category) {
-                 // Maintain a queue to prevent duplicate categories being added
-                 if(torrentsToAdd.indexOf(aliases) === -1) {
-                     // Push an empty array followed by the name of the category we will be creating
-                     torrentsToAdd.push([],aliases);
-                     // Create the category
-                     Category.create({
-                         title: aliases,
-                         aliases: [
-                             aliases
-                         ],
-                         torrentCount: 0
-                     }, function(err, cat) {
-                         if(err) {
-                             log.warn(err);
-                             log.warn('Error creating category ' + aliases);
-
-                         } else {
-                             Provider.addTorrent(title,aliases,size,details,swarm,lastmod,imported,infoHash);
-                             for(var i = 0; i < torrentsToAdd[torrentsToAdd.indexOf(aliases)-1].length; i++) {
-                                 var torrent = torrentsToAdd[torrentsToAdd.indexOf(aliases)-1][i];
-                                 Provider.addTorrent(torrent.title,aliases,torrent.size,torrent.details,torrent.swarm,torrent.lastmod,torrent.imported,torrent.infoHash);
-                             }
-                             // Perform cleanup on the torrentsToAdd array
-                             delete torrentsToAdd[torrentsToAdd.indexOf(aliases)-1];
-                             delete torrentsToAdd[torrentsToAdd.indexOf(aliases)];
-                         }
-                     });
-                 } else {
-                     torrentsToAdd[torrentsToAdd.indexOf(aliases)-1].push(
-                         {
-                             title: title,
-                             size: size,
-                             details: [
-                                 details
-                             ],
-                             swarm: {
-                                 seeders: swarm.seeders,
-                                 leechers: swarm.leecher
-                             },
-                             lastmod: lastmod,
-                             imported: imported,
-                             infoHash: infoHash
-                        }
-                    );
-                 }
-             } else {
-                 Torrent.findOne({
-                    infoHash: infoHash
-                 }).exec(function (err, exists) {
-                     if (!exists) {
-                         Torrent.create({
-                             title: title,
-                             category: category._id,
-                             size: size,
-                             details: [
-                                details
-                             ],
-                             swarm: {
-                                seeders: swarm.seeders,
-                                leechers: swarm.leecher
-                             },
-                             lastmod: lastmod,
-                             imported: imported,
-                             infoHash: infoHash
-                         }, function (err) {
-                             if (err) {
-                                log.warn(err);
-                             }
-                         });
-                     }
-                 });
-             }
-         });
+                process.exit(1);
+            }
+            db.collection('torrents').insertOne({
+                title: title,
+                size: size,
+                details: [
+                    details
+                ],
+                swarm: {
+                    seeders: swarm.seeders,
+                    leechers: swarm.leecher
+                },
+                lastmod: lastmod,
+                imported: imported,
+                infoHash: infoHash
+            }, function(err, r) {
+                if(err) {
+                    log.warn(err);
+                }
+            });
+        });
     }
 }
 
