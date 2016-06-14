@@ -34,7 +34,7 @@
             "config": {
                 "startup": true,
                 "duration": "@hourly",
-                "apiKey": "fknelkn32l4kn23l4kn23lk4n",
+                "apiKey": "",
                 "url": "https://kat.cr/api/get_dump/hourly"
             }
         },
