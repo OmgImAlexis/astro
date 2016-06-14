@@ -5,10 +5,10 @@
  * then don't do anything until the gunzip.on('end') event is triggered.
  */
 'use strict';
-var https = require('https');
-var zlib = require('zlib');
 var path = require('path');
 var nconf = require('nconf');
+var protocol = require('../protocol')(nconf.get('providers:kat:config:url'));
+var zlib = require('zlib');
 
 var Provider = require(__dirname + '/provider.js');
 
@@ -26,7 +26,7 @@ class Kat extends Provider {
         log = this.log;
     }
     run() {
-        https.get(nconf.get('providers:kat:config:url') + '/?userhash=' + nconf.get('providers:kat:config:apiKey'), function (res) {
+        protocol.get(nconf.get('providers:kat:config:url') + '/?userhash=' + nconf.get('providers:kat:config:apiKey'), function (res) {
             // Kat
             // torrent_info_hash|torrent_name|torrent_category|torrent_info_url|torrent_download_url|size|category_id|files_count|seeders|leechers|upload_date|verified
             if (res.headers['content-type'] === 'application/x-gzip') {

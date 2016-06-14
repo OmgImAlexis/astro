@@ -7,10 +7,10 @@
 
 'use strict';
 
-var http = require('http');
-var zlib = require('zlib');
 var path = require('path');
 var nconf = require('nconf');
+var protocol = require('../protocol')(nconf.get('providers:torrentproject:config:url'));
+var zlib = require('zlib');
 var os = require('os');
 
 var log;
@@ -31,7 +31,7 @@ class TorrentProject extends Provider {
         log = this.log;
     }
     run() {
-        http.get(nconf.get('providers:torrentproject:config:url'), function (res) {
+        protocol.get(nconf.get('providers:torrentproject:config:url'), function (res) {
             // torrentproject
             // torrent_info_hash|torrent_name|torrent_category|torrent_info_url|torrent_download_url|size|category_id|files_count|seeders|leechers|upload_date|verified
 

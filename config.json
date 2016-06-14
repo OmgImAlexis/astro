@@ -30,7 +30,7 @@
     "trackers": "",
     "providers": {
         "kat": {
-            "enabled": true,
+            "enabled": false,
             "config": {
                 "startup": true,
                 "duration": "@hourly",
