@@ -48,11 +48,53 @@
         },
         "tpb": {
             "enabled": false
+        },
+        "rss": {
+            "enabled": true,
+            "feeds": [
+                {
+                    "url": "https://yts.ag/rss",
+                    "category": "Movies",
+                    "duration": "@hourly"
+                },
+                {
+                    "url": "https://kat.cr/movies/?rss=1",
+                    "duration": "@hourly"
+                },
+                {
+                    "url": "https://kat.cr/tv/?rss=1",
+                    "duration": "@hourly"
+                },
+                {
+                    "url": "https://kat.cr/music/?rss=1",
+                    "duration": "@hourly"
+                },
+                {
+                    "url": "https://kat.cr/games/?rss=1",
+                    "duration": "@hourly"
+                },
+                {
+                    "url": "https://kat.cr/applications/?rss=1",
+                    "duration": "@hourly"
+                },
+                {
+                    "url": "https://kat.cr/anime/?rss=1",
+                    "duration": "@hourly"
+                },
+                {
+                    "url": "https://kat.cr/books/?rss=1",
+                    "duration": "@hourly"
+                },
+                {
+                    "url": "https://kat.cr/lossless/?rss=1",
+                    "duration": "@hourly"
+                }
+            ]
         }
     },
     "api": {
         "keyNeeded": true,
-        "key": "random_key"
+        "key": ""
     },
     "logs": {
         "provider": "default",

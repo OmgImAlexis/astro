@@ -32,7 +32,8 @@ var loadProvider = function (provider) {
     } catch (e) {
         log.info('An error occurred loading the ' + this.provider + ' provider.');
         log.info('The error is as follows:');
-        log.error(e);
+        log.info(e);
+        console.trace(e);
     }
 };
 
