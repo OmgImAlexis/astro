@@ -13,7 +13,7 @@ try {
     console.error(e);
     console.info('Attempting to fallback to default logging provider...');
     try {
-        var logger = require('./logging/Bunyan')
+        var logger = require('./logging/Bunyan');
     } catch(e) {
         console.info('An error occurred loading the default logging provider.');
         console.info('The error is as follows: ');

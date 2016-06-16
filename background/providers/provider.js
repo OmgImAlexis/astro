@@ -13,26 +13,25 @@ var db;
  * will reuse connection if already created
  * @todo Move this to a seperate module along
  * with any other database code.
- */ 
+ */
 function connect(callback) {
     if (db === undefined) {
         MongoClient.connect(uri, {
             poolSize: 10000000,
             raw: true
         }, function(err, conn) {
-            if(err) { 
+            if(err) {
                 return callback(err);
             }
             db = conn;
             callback(null, conn);
-        });  
+        });
     } else {
         callback(null, db);
     }
 }
 
-var torrentsToAdd = [];
-var log;
+var log, getProvider;
 
 /**
  * Class representing an archive provider
@@ -44,6 +43,10 @@ class Provider {
      * @param {string} provider - The name of an archive provider
      */
     constructor(provider) {
+        this.provider = provider;
+        getProvider = () => {
+          return this.provider;
+        };
         this.log = require(__dirname + '/../logging.js');
         log = this.log = new this.log('imports:' + provider);
         // Sets the duration a provider should run
@@ -73,6 +76,23 @@ class Provider {
             console.log("Connected correctly to server");
         });
     }
+
+    /**
+     * Closes any open connections to the db
+     * @param {function} callback - Callback to execute after closing any connections to the db
+     */
+     static closeDB(callback) {
+       connect(function(err, db) {
+         db.close(false, function(dbCloseErr){
+           if(!err) {
+             err = dbCloseErr;
+           }
+           if(typeof(callback) === 'function') {
+             return callback(err);
+           }
+         });
+       });
+     }
 
     /**
      * Checks if a torrent should be added to the database
@@ -160,9 +180,15 @@ class Provider {
                 lastmod: lastmod,
                 imported: imported,
                 infoHash: infoHash
-            }, function(err, r) {
+            }, function(err) {
                 if(err) {
-                    log.warn(err);
+                    // Ignore 'E11000 duplicate key error'
+                    if(err.code !== 11000 ||
+                      nconf.get('debug') ||
+                      nconf.get('providers:' + getProvider() + ':debug')
+                    ) {
+                      log.warn(err);
+                    }
                 }
             });
         });

@@ -7,19 +7,17 @@
 
 'use strict';
 
-var path = require('path');
+const PROVIDER_NAME = 'torrentproject';
+
 var nconf = require('nconf');
 var protocol = require('../protocol')(nconf.get('providers:torrentproject:config:url'));
 var zlib = require('zlib');
-var os = require('os');
-
-var log;
 
 var Provider = require(__dirname + '/provider.js');
 
-var interval;
+var log, interval, start, end;
 
-var start, end;
+process.send = process.send || function() {};
 
 /**
  * Class representing a {@link https://torrentproject.se|Torrentproject} archive provider
@@ -45,7 +43,6 @@ class TorrentProject extends Provider {
                     line = line.split('|');
                     if(line.length > 1) {
                         log.info('Processing ' + line[1]);
-
                         Provider.addTorrent(
                             line[1], // title
                             line[2], // category / aliases
@@ -66,9 +63,25 @@ class TorrentProject extends Provider {
             }).on('end', function () {
                 end = process.hrtime(start);
                 log.info('elapsed time: ' + end[0] + ' seconds and ' + end[1] + 'nanoseonds.');
+                if(require('os').cpus().length > 1) {
+                  Provider.closeDB(function(err){
+                    if(err) {
+                      err.warn("An error occurred closing the database!");
+                      err.info("The error is as follows: ");
+                      err.info(err);
+                    }
+                    process.send({
+                      "provider": {
+                        "name": PROVIDER_NAME,
+                        "next": interval._idleTimeout + interval._idleStart
+                      }
+                    });
+                    process.disconnect();
+                  });
+                }
             });
         }).on('error', function (err) {
-            log.warn(err); // 100000
+            log.warn(err);
         });
     }
 
@@ -84,4 +97,4 @@ class TorrentProject extends Provider {
     }
 }
 
-new TorrentProject('torrentproject').startup();
+new TorrentProject(PROVIDER_NAME).startup();

@@ -5,16 +5,18 @@
  * then don't do anything until the gunzip.on('end') event is triggered.
  */
 'use strict';
-var path = require('path');
+
+const PROVIDER_NAME = 'kat';
+
 var nconf = require('nconf');
 var protocol = require('../protocol')(nconf.get('providers:kat:config:url'));
 var zlib = require('zlib');
 
 var Provider = require(__dirname + '/provider.js');
 
-var interval;
+var log, interval, start, end;
 
-var log;
+process.send = process.send || function() {};
 
 /**
  * Class representing a {@link https://kat.cr|kickasstorrents} archive provider
@@ -33,7 +35,7 @@ class Kat extends Provider {
                 // pipe the response into the gunzip to decompress
                 var gunzip = zlib.createGunzip();
                 res.pipe(gunzip);
-
+                start = process.hrtime();
                 gunzip.on('data', function (data) {
                     var lines = data.toString().split(/\r?\n/);
                     lines.forEach(function (line) {
@@ -58,7 +60,24 @@ class Kat extends Provider {
                 }).on('error', function (err) {
                     log.warn(err);
                 }).on('end', function () {
-
+                  end = process.hrtime(start);
+                  log.info('elapsed time: ' + end[0] + ' seconds and ' + end[1] + 'nanoseonds.');
+                  if(require('os').cpus().length > 1) {
+                    Provider.closeDB(function(err){
+                      if(err) {
+                        err.warn("An error occurred closing the database!");
+                        err.info("The error is as follows: ");
+                        err.info(err);
+                      }
+                      process.send({
+                        "provider": {
+                          "name": PROVIDER_NAME,
+                          "next": interval._idleTimeout + interval._idleStart
+                        }
+                      });
+                      process.disconnect();
+                    });
+                  }
                 });
             } else {
                 log.error('Kat API key is invalid');
@@ -80,4 +99,4 @@ class Kat extends Provider {
     }
 }
 
-new Kat('kat').startup();
+new Kat(PROVIDER_NAME).startup();
