@@ -31,7 +31,7 @@
     "grunt": "^0.4.5",
     "grunt-bower-concat": "^0.6.0",
     "grunt-contrib-cssmin": "^0.14.0",
-    "grunt-contrib-jshint": "^0.11.3",
+    "grunt-contrib-jshint": "^0.12.0",
     "grunt-contrib-uglify": "^0.10.0",
     "jade": "^1.11.0",
     "line-by-line": "^0.1.4",
