@@ -208,7 +208,8 @@ function parse(err, body, feedURL, callback) {
               .substring(
                 (torrent[i].enclosure[0].$.url.length - 8)
               ) === '.torrent' ||
-            torrent[i].enclosure[0].$.url.substring(0, 7) === 'magnet:'
+            torrent[i].enclosure[0].$.url.substring(0, 7) === 'magnet:' ||
+            torrent[i].enclosure[0].$.type === 'application/x-bittorrent'
           ) {
           // Always pass a copy of struct to getTorrentInfo, not a reference.
           // Using a reference (which is the default behaviour) causes values
