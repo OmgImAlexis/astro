@@ -128,11 +128,10 @@ if(cluster.isMaster) {
         if(provider !== 'provider') {
             // For single core processors we don't fork, we just load all of the providers
             // and let Node do its thing.
+            if (!nconf.get(`providers:${provider}:enabled`)) { continue; }
             if(numCPUs === 1) {
-              if (nconf.get('providers:' + provider + ':enabled')) {
                 loadProvider(String(provider));
-              }
-            } else if (nconf.get('providers:' + provider + ':enabled')) {
+            } else {
                 newThread(String(provider));
             }
         } else {

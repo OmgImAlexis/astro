@@ -58,7 +58,7 @@ app.use(bodyParser.json());
 app.use(methodOverride());
 
 if(!nconf.get('session:secret') || nconf.get('session.secret') === '') {
-  const crypto = require('crypto')
+  const crypto = require('crypto');
   crypto.randomBytes(48, function(err, buf) {
     if (err) {
       console.trace(err);
@@ -66,7 +66,7 @@ if(!nconf.get('session:secret') || nconf.get('session.secret') === '') {
     }
     nconf.set('session:secret', buf.toString('hex'));
     nconf.save();
-  })
+  });
 }
 
 app.use(session({
