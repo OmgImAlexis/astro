@@ -4,11 +4,13 @@
 
 'use strict';
 
-const nconf = require('nconf');
-const MongoClient = require('mongodb').MongoClient;
+import nconf from 'nconf';
+import outdent from 'outdent';
+import {MongoClient} from 'mongodb';
 
-const Log = require(`${__dirname}/../logging.js`);
+import Log from '../logging';
 
+const log = new Log('provider');
 const uri = `mongodb://${nconf.get('database:mongodb:host')}:${nconf.get('database:mongodb:port')}/${nconf.get('database:mongodb:collection')}`;
 let db;
 
@@ -17,7 +19,7 @@ let db;
  * @todo Move this to a seperate module along
  * with any other database code.
  */
-function connect(callback) {
+const connect = callback => {
     if (db === undefined) {
         MongoClient.connect(uri, {
             poolSize: 10000000,
@@ -32,7 +34,7 @@ function connect(callback) {
     } else {
         callback(null, db);
     }
-}
+};
 
 /**
  * Class representing an archive provider
@@ -49,12 +51,12 @@ class Provider {
 
         this.setDuration();
 
-    // Sets whether or not a provider should run at startup
+        // Sets whether or not a provider should run at startup
         if (typeof (nconf.get(`providers:${provider}:startup`)) === 'boolean') {
             this.runAtStartup = nconf.get(`providers:${provider}:startup`);
         } else {
-      // By default runAtStartup is true - The user has to be explicit if they
-      // don't want a provider to run at startup.
+            // By default runAtStartup is true - The user has to be explicit if they
+            // don't want a provider to run at startup.
             this.runAtStartup = true;
         }
         connect((err, conn) => {
@@ -63,7 +65,7 @@ class Provider {
                 throw new Error();
             }
             db = conn;
-            console.log('Connected correctly to server');
+            log.info('Connected correctly to server');
         });
     }
 
@@ -71,19 +73,19 @@ class Provider {
         return this.provider;
     }
 
-  /**
-   * This method is invoked upon startup of the provider
-   * and is where the bulk of the processing of a provider
-   * occurs.
-   * @virtual
-   */
+   /**
+    * This method is invoked upon startup of the provider
+    * and is where the bulk of the processing of a provider
+    * occurs.
+    * @virtual
+    */
     run() {}
 
-  /**
-   * This method decides whether or not to run the provider
-   * on startup and schedules how often to run
-   * @todo Move this code into imports.js
-   */
+    /**
+     * This method decides whether or not to run the provider
+     * on startup and schedules how often to run
+     * @todo Move this code into imports.js
+     */
     startup() {
         this.interval = undefined;
 
@@ -93,11 +95,11 @@ class Provider {
         this.interval = setInterval(this.run, this.duration);
     }
 
-  /**
-   * Sets the duration a provider should run
-   * @todo remove magic numbers (make them constants)
-   * @param duration {string|number} - The duration to set
-   */
+   /**
+    * Sets the duration a provider should run
+    * @todo remove magic numbers (make them constants)
+    * @param duration {string|number} - The duration to set
+    */
     setDuration(duration = nconf.get(`providers:${this.provider}:config:duration`)) {
         switch (duration) {
             case '@hourly':
@@ -109,18 +111,20 @@ class Provider {
             default:
                 this.duration = Number(duration);
                 if (isNaN(this.duration)) {
-                    this.log.warn(`Potentialy invalid duration for provider ${this.provider}.
-Falling back to one hour.`);
+                    this.log.warn(outdent`
+                        Potentialy invalid duration for provider ${this.provider}.
+                        Falling back to one hour.
+                    `);
                     this.duration = 3600000;
                 }
         }
     }
 
-  /**
-   * Closes any open connections to the db
-   * @param {function} callback - Callback to execute after closing any connections to the db
-   */
-    static closeDB(callback) {
+   /**
+    * Closes any open connections to the db
+    * @param {function} callback - Callback to execute after closing any connections to the db
+    */
+    closeDB(callback) {
         connect((err, db) => {
             db.close(false, dbCloseErr => {
                 if (!err) {
@@ -133,10 +137,10 @@ Falling back to one hour.`);
         });
     }
 
-  /**
-   * Checks if a torrent should be added to the database
-   * @param {string} category - A torrents category
-   */
+   /**
+    * Checks if a torrent should be added to the database
+    * @param {string} category - A torrents category
+    */
     static shouldAddTorrent(category) {
         if (nconf.get('torrents:whitelist:enabled')) {
             for (let i = 0; i < nconf.get('torrents:whitelist:categories'); i++) {
@@ -155,15 +159,15 @@ Falling back to one hour.`);
         return true;
     }
 
-  /** Add a torrent to the database
-   * @todo If we have a .torrent file and don't have a magnet link / infohash we should store the .torrent file
-   * either in a directory or in the database. ({@link https://github.com/bitcannon-org/bitcannon-web/issues/19|#19})
-   */
-  // eslint-disable-next-line max-params
+   /** Add a torrent to the database
+    * @todo If we have a .torrent file and don't have a magnet link / infohash we should store the .torrent file
+    * either in a directory or in the database. ({@link https://github.com/bitcannon-org/bitcannon-web/issues/19|#19})
+    */
+    // eslint-disable-next-line max-params
     static addTorrent(title, aliases, size, details, swarm, lastmod, imported, infoHash) {
-    // Validate Data
+        // Validate Data
         if (typeof (title) !== 'string' || typeof (infoHash) !== 'string') {
-      // Bail out because we don't have a title or infoHash
+            // Bail out because we don't have a title or infoHash
             this.log.error('Skipping torrent due to a missing title or infoHash');
             return;
         }
@@ -188,7 +192,7 @@ Falling back to one hour.`);
         if (!swarm || typeof (swarm) !== 'object') {
             swarm = {seeders: 0, leecher: 0};
         } else {
-      // Get rid of anything that shouldn't be in the swarm object
+            // Get rid of anything that shouldn't be in the swarm object
             for (const key in swarm) {
                 if (key !== 'seeders' && key !== 'leechers') {
                     delete swarm[key];
@@ -201,6 +205,7 @@ Falling back to one hour.`);
                 swarm.leechers = 0;
             }
         }
+
         connect((err, db) => {
             if (err) {
                 this.log.warn(err);
