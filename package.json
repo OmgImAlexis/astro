@@ -6,7 +6,7 @@
     "scripts": {
         "start": "babel-node index.js | bunyan",
         "start:development": "nodemon index.js --exec babel-node | bunyan",
-        "start:imports": "node background/imports.js | bunyan",
+        "start:background:imports": "babel-node background/imports.js | bunyan",
         "test": "xo"
     },
     "repository": {

@@ -1,24 +1,26 @@
 /**
  * @file Imports torrents from various archive provider
- * @todo Add providers to a queue when there are more providers than CPUs / cores.
+ * @TODO Add providers to a queue when there are more providers than CPUs / cores.
  * They will then be executed in order after a worker process exits.
- * @todo Handle workers that exit abnormally, log the fact that something went wrong
+ * @TODO Handle workers that exit abnormally, log the fact that something went wrong
  * and perhaps queue the provider to be run again?
- */
+*/
 
- const path = require('path');
+ import path from 'path';
+ import {cpus} from 'os';
 
- const cluster = require('cluster');
- const numCPUs = require('os').cpus().length;
+ import cluster from 'cluster';
+ import nconf from 'nconf';
 
- const nconf = require('nconf');
+ import Log from './logging';
+
+ const numCPUs = cpus().length;
 
  nconf.use('memory');
- nconf.argv().env('__').file({
-     file: path.resolve(`${__dirname}/../config.json`)
+ nconf.argv().file({
+     file: path.resolve(__dirname, '../config.json')
  });
 
- const Log = require(`${__dirname}/logging.js`);
  const log = new Log('imports');
 
  const providers = [];
@@ -53,12 +55,9 @@ ${err.message || ''}`);
          require('app-module-path').addPath(`${__dirname.substring(0, __dirname.lastIndexOf('/'))}/app`);
      }
 
-     if (
-        nconf.get('torrents:whitelist:enabled') &&
-        nconf.get('torrents:blacklist:enabled')
-    ) {
+     if (nconf.get('torrents:whitelist:enabled') && nconf.get('torrents:blacklist:enabled')) {
          log.error('You cannot use the whitelist and the blacklist at the same time!');
-         throw new Error();
+         throw new Error('You cannot use the whitelist and the blacklist at the same time!');
      }
 
      const MongoClient = require('mongodb').MongoClient;
@@ -67,20 +66,19 @@ ${err.message || ''}`);
          MongoClient.connect(`mongodb://${nconf.get('database:mongodb:host')}:${nconf.get('database:mongodb:port')}/${nconf.get('database:mongodb:collection')}`, (err, db) => {
              if (err) {
                  log.warn('Cannot connect to mongodb, please check your config.json');
-                 throw new Error();
+                 throw new Error('Cannot connect to mongodb, please check your config.json');
              }
              db.close();
          });
      } else {
          log.warn('No database is enabled, please check your config.json');
-         throw new Error();
+         throw new Error('No database is enabled, please check your config.json');
      }
 
      let newThread; // eslint-disable-line prefer-const
 
      const messageHandler = function(msg) {
          log.info(`Master ${process.pid} received message from worker ${this.process.pid}.`, msg);
-         console.dir(msg);
          if ('provider' in msg) {
              if ('name' in msg.provider) {
                  if ('next' in msg.provider) {
@@ -92,7 +90,7 @@ ${err.message || ''}`);
          }
      };
 
-     newThread = function(provider) {
+     newThread = provider => {
          let availableCluster = false;
          let threadNum;
          if (workers.length < numCPUs) {
@@ -114,7 +112,7 @@ ${err.message || ''}`);
                  provider = providers.splice(0, 1);
              }
              if (provider) {
-         // Receive messages from this worker and handle them in the master process.
+                 // Receive messages from this worker and handle them in the master process.
                  workers[threadNum].on('message', messageHandler);
                  workers[threadNum].send({provider: String(provider)});
              } else {
@@ -130,8 +128,8 @@ ${err.message || ''}`);
          if (provider === 'provider') {
              log.warn('You cannot directly use the provider file. This is a helper file for other providers.');
          }
-     // For single core processors we don't fork, we just load all of the providers
-     // and let Node do its thing.
+         // For single core processors we don't fork, we just load all of the providers
+         // and let Node do its thing.
          if (!nconf.get(`providers:${provider}:enabled`)) {
              continue;
          }
@@ -155,9 +153,8 @@ ${err.message || ''}`);
  } else {
      log.info('Worker ' + process.pid + ' has started.');
 
-  // Receive messages from the master process.
+     // Receive messages from the master process.
      process.on('message', msg => {
-         console.dir(msg);
          if (msg.provider) {
              loadProvider(msg.provider);
          } else {
