@@ -64,7 +64,9 @@ if (cluster.isMaster) {
     }
 
     if (nconf.get('database:mongodb:enabled')) {
-        MongoClient.connect(`mongodb://${nconf.get('database:mongodb:host')}:${nconf.get('database:mongodb:port')}/${nconf.get('database:mongodb:collection')}`, (err, db) => {
+        const mongoHost = process.env.MONGO_HOST || nconf.get('database:mongodb:host');
+        const uri = `mongodb://${mongoHost}:${nconf.get('database:mongodb:port')}/${nconf.get('database:mongodb:collection')}`;
+        MongoClient.connect(uri, (err, db) => {
             if (err) {
                 log.warn('Cannot connect to mongodb, please check your config.json');
                 throw new Error('Cannot connect to mongodb, please check your config.json');
