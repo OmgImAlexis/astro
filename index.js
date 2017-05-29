@@ -10,6 +10,10 @@ import mongoose from 'mongoose';
 import compression from 'compression';
 
 import log from './app/log';
+import {
+    api,
+    core
+} from './app/routes';
 
 const MongoStore = require('connect-mongo')(session);
 
@@ -79,8 +83,8 @@ app.use((req, res, next) => {
     next();
 });
 
-app.use('/', require('./app/routes/core'));
-app.use('/api', require('./app/routes/api'));
+app.use('/', core);
+app.use('/api', api);
 
 app.use((req, res) => {
     res.status(404).send('Either we lost this page or you clicked an incorrect link!');

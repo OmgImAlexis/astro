@@ -7,15 +7,12 @@
  */
 'use strict';
 
-const PROVIDER_NAME = 'rss';
+import zlib from 'zlib';
+import url from 'url';
+import nconf from 'nconf';
+import {parseString} from 'xml2js';
 
-const zlib = require('zlib');
-const url = require('url');
-
-const nconf = require('nconf');
-const parseString = require('xml2js').parseString;
-
-const Provider = require(`${__dirname}/provider.js`);
+import Provider from './provider';
 
 // eslint-disable-next-line one-var
 let log, start, end, getProtocol, getCategory, getRequestOptions, getFeedURL, getTorrentInfo;
@@ -40,12 +37,6 @@ function parse(err, body, feedURL, callback) {
 
     parseString(body, (err, result) => {
         const totalNumberOfItems = result.rss.channel[0].item.length;
-        let torrentTag = false;
-        let torrentNameSpace = false;
-        let rssFeed = false;
-        let namespace = '';
-        let torrent;
-        let item;
         const torrentTags = [
             'contentLength',
             'infoHash',
@@ -53,17 +44,26 @@ function parse(err, body, feedURL, callback) {
             'peers'
         ];
 
+        let torrentTag = false;
+        let torrentNameSpace = false;
+        let rssFeed = false;
+        let namespace = '';
+        let torrent;
+        let item;
+
         if (err) {
             return callback(err);
         }
+
         if ('rss' in result) {
             rssFeed = true;
         }
+
         try {
             if (typeof (result.rss.channel[0].torrent[0].$.xmlns) !== 'undefined') {
-        // <torrent xmlns="http://xmlns.ezrss.it/0.1/">
-        //    <infoHash>...</infoHash>
-        // </torrent>
+                // <torrent xmlns="http://xmlns.ezrss.it/0.1/">
+                //    <infoHash>...</infoHash>
+                // </torrent>
                 torrentTag = true;
             }
         } catch (err) {
@@ -71,29 +71,27 @@ function parse(err, body, feedURL, callback) {
                 if (typeof (result.rss.$['xmlns:torrent']) === 'undefined') {
                     throw err;
                 }
-        // <rss xmlns:torrent="http://xmlns.ezrss.it/0.1/">
-        //    <torrent:infoHash>...</torrent:infoHash>
-        // </rss>
+                // <rss xmlns:torrent="http://xmlns.ezrss.it/0.1/">
+                //    <torrent:infoHash>...</torrent:infoHash>
+                // </rss>
                 torrentNameSpace = true;
             } catch (err) {
                 try {
                     if (typeof (result.rss.$['xmlns:atom']) === 'undefined') {
                         throw err;
                     }
-          // <rss xmlns:atom="http://www.w3.org/2005/Atom">
-          //    ...
-          //    <enclosure url="http://example.com/example.torrent"
-          //               type="application/x-bittorrent"
-          //               length="10000"
-          //    />
-          //    ...
-          // </rss>
+                    // <rss xmlns:atom="http://www.w3.org/2005/Atom">
+                    //    ...
+                    //    <enclosure url="http://example.com/example.torrent"
+                    //               type="application/x-bittorrent"
+                    //               length="10000"
+                    //    />
+                    //    ...
+                    // </rss>
                 } catch (err) {
                     if (!rssFeed) {
-                        log.info('This isn\'t an RSS feed!');
-                        log.info('If you think this is a mistake' +
-              ' please file an issue (' +
-              'https://github.com/bitcannon-org/bitcannon-web/issues)');
+                        log.info(`This isn't an RSS feed!`);
+                        log.info(`If you think this is a mistake please file an issue (https://github.com/bitcannon-org/bitcannon-web/issues)`);
                         return callback(err);
                     }
                 }
@@ -107,9 +105,8 @@ function parse(err, body, feedURL, callback) {
             torrent = result.rss.channel[0].torrent;
             item = result.rss.channel[0].item;
         } else {
-            log.info('Parsing plain RSS or Atom feed');
-            log.info('BitCannon works best with feeds ' +
-        'that use the torrent format but we\'ll try our best!');
+            log.info(`Parsing plain RSS or Atom feed.`);
+            log.info(`BitCannon works best with feeds that use the torrent format but we'll try our best!`);
             item = result.rss.channel[0].item;
             torrent = item;
         }
@@ -121,71 +118,61 @@ function parse(err, body, feedURL, callback) {
         };
         for (let i = 0; i < result.rss.channel[0].item.length; i++) {
             struct.category = String(
-        getCategory() ||
-        torrent[i].category ||
-        item[i].category ||
-        'Other');
+                getCategory() ||
+                torrent[i].category ||
+                item[i].category ||
+                'Other'
+            );
 
             struct.title = String(
-        torrent[i].title ||
-        item[i].title);
+                torrent[i].title ||
+                item[i].title
+            );
 
-            struct.details =
-        torrent[i].link ||
-        item[i].link ||
-        torrent[i].guid ||
-        item[i].guid ||
-        '';
+            struct.details = String(
+                torrent[i].link ||
+                item[i].link ||
+                torrent[i].guid ||
+                item[i].guid ||
+                ''
+            );
 
             if (typeof (struct.details) !== 'object') {
                 struct.details = new Array(struct.details);
             }
 
             if (torrentNameSpace || torrentTag) {
-        // Iterate over the torrentTags array
+                // Iterate over the torrentTags array
                 for (let j = 0; j < torrentTags.length; j++) {
                     switch (torrentTags[j]) {
                         case 'seeds':
-              // If the feed doesn't contain info on seeders we set it to 0
+                            // If the feed doesn't contain info on seeders we set it to 0
                             struct.swarm.seeders = Number(torrent[i][namespace + torrentTags[j]]) || 0;
                             break;
-            // If the feed doesn't contain info on leechers we set it to 0
+                            // If the feed doesn't contain info on leechers we set it to 0
                         case 'peers':
                             struct.swarm.leechers = Number(torrent[i][namespace + torrentTags[j]]) || 0;
                             break;
-            // Set the id to the infoHash
+                            // Set the id to the infoHash
                         case 'infoHash':
                             struct._id = String(torrent[i][namespace + torrentTags[j]]);
                             break;
-            // Set the size to the contentLength
+                            // Set the size to the contentLength
                         case 'contentLength':
-                            struct.size = Number(torrent[i][namespace + torrentTags[j]]) ||
-                0;
+                            struct.size = Number(torrent[i][namespace + torrentTags[j]]) || 0;
                             break;
                         default:
-                            struct[namespace + torrentTags[j]] =
-                torrent[i][namespace + torrentTags[j]];
+                            struct[namespace + torrentTags[j]] = torrent[i][namespace + torrentTags[j]];
                     }
                 }
             }
             if (typeof (struct.title) !== 'string') {
                 log.info('Skipping torrent due to missing title');
-            } else if (
-        torrent[i].enclosure[0].$.url
-          .substring(
-            (torrent[i].enclosure[0].$.url.length - 8)
-          ) === '.torrent' ||
-        torrent[i].enclosure[0].$.url.substring(0, 7) === 'magnet:' ||
-        torrent[i].enclosure[0].$.type === 'application/x-bittorrent'
-      ) {
-      // Always pass a copy of struct to getTorrentInfo, not a reference.
-      // Using a reference (which is the default behaviour) causes values
-      // to change within the function because of the loop.
-                getTorrentInfo(
-          String(torrent[i].enclosure[0].$.url),
-          JSON.parse(JSON.stringify(struct)),
-          callback
-        );
+            } else if (torrent[i].enclosure[0].$.url.substring((torrent[i].enclosure[0].$.url.length - 8)) === '.torrent' || torrent[i].enclosure[0].$.url.substring(0, 7) === 'magnet:' || torrent[i].enclosure[0].$.type === 'application/x-bittorrent') {
+                // Always pass a copy of struct to getTorrentInfo, not a reference.
+                // Using a reference (which is the default behaviour) causes values
+                // to change within the function because of the loop.
+                getTorrentInfo(String(torrent[i].enclosure[0].$.url), JSON.parse(JSON.stringify(struct)), callback);
             }
             numberOfItemsParsed++;
             if (numberOfItemsParsed === totalNumberOfItems) {
@@ -201,7 +188,7 @@ function parse(err, body, feedURL, callback) {
  */
 class RSS extends Provider {
     constructor(options) {
-        super(PROVIDER_NAME);
+        super('rss');
 
         this.duration = options.duration || '@hourly';
         this.setDuration();
@@ -209,6 +196,7 @@ class RSS extends Provider {
         getCategory = () => {
             return options.category;
         };
+
         getRequestOptions = () => {
             const requestOptions = {
                 headers: {
@@ -228,6 +216,7 @@ class RSS extends Provider {
             requestOptions.path = uri.path;
             return requestOptions;
         };
+
         getFeedURL = () => {
             return options.url;
         };
@@ -235,6 +224,7 @@ class RSS extends Provider {
         getProtocol = () => {
             return require('../protocol')(getFeedURL());
         };
+
         log = this.log;
         getTorrentInfo = require('../get-torrent-info')(log);
         start = this.start;
@@ -248,10 +238,8 @@ class RSS extends Provider {
     run() {
         let feed = '';
         getProtocol().get(getRequestOptions(), res => {
-            if (res.headers['content-type'] === 'application/x-gzip' ||
-          res.headers['content-encoding'] === 'gzip'
-        ) {
-        // Pipe the response into the gunzip to decompress
+            if (res.headers['content-type'] === 'application/x-gzip' || res.headers['content-encoding'] === 'gzip') {
+                // Pipe the response into the gunzip to decompress
                 const gunzip = zlib.createGunzip();
                 res.pipe(gunzip);
                 start = process.hrtime();
@@ -266,20 +254,18 @@ class RSS extends Provider {
                         } else {
                             end = process.hrtime(start);
                             log.info(`elapsed time: ${end[0]} seconds and ${end[1]} nanoseonds.`);
-                            log.info(`Processing  ${torrent.title}`);
-                            Provider.addTorrent(
-                torrent.title, // Title
-                torrent.category, // Category / aliases
-                torrent.size, // Size
-                torrent.details, // Details
-                                {
-                                    seeders: torrent.swarm.seeders,
-                                    leechers: torrent.swarm.leechers
-                                }, // Swarm
-                Date.now(), // Lastmod
-                Date.now(), // Imported
-                torrent._id // InfoHash
-              );
+                            log.info(`Processing ${torrent.title}`);
+                            const {title, size, details, swarm} = torrent;
+                            Provider.addTorrent({
+                                title,
+                                alias: torrent.category,
+                                size,
+                                details,
+                                swarm,
+                                lastmo: Date.now(),
+                                importe: Date.now(),
+                                infoHash: torrent._id
+                            });
                         }
                     });
                 });
@@ -296,19 +282,17 @@ class RSS extends Provider {
                             end = process.hrtime(start);
                             log.info(`elapsed time: ${end[0]} seconds and ${end[1]} nanoseonds.`);
                             log.info(`Processing ${torrent.title}`);
-                            Provider.addTorrent(
-                torrent.title, // Title
-                torrent.category, // Category / aliases
-                torrent.size, // Size
-                torrent.details, // Details
-                                {
-                                    seeders: torrent.swarm.seeders,
-                                    leechers: torrent.swarm.leechers
-                                }, // Swarm
-                Date.now(), // Lastmod
-                Date.now(), // Imported
-                torrent._id // InfoHash
-              );
+                            const {title, size, details, swarm} = torrent;
+                            Provider.addTorrent({
+                                title,
+                                alias: torrent.category,
+                                size,
+                                details,
+                                swarm,
+                                lastmo: Date.now(),
+                                importe: Date.now(),
+                                infoHash: torrent._id
+                            });
                         }
                     });
                 });

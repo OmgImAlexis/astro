@@ -41,10 +41,10 @@ const connect = callback => {
  * @todo Move database code into a separate module. This will pave the way for using other databases.
  */
 class Provider {
-  /**
-   * Constructs a Provider
-   * @param {string} provider - The name of an archive provider
-   */
+    /**
+     * Constructs a Provider
+     * @param {string} provider - The name of an archive provider
+     */
     constructor(provider) {
         this.provider = provider;
         this.log = new Log(`imports:${provider}`);
@@ -159,12 +159,11 @@ class Provider {
         return true;
     }
 
-   /** Add a torrent to the database
+    /** Add a torrent to the database
     * @todo If we have a .torrent file and don't have a magnet link / infohash we should store the .torrent file
     * either in a directory or in the database. ({@link https://github.com/bitcannon-org/bitcannon-web/issues/19|#19})
     */
-    // eslint-disable-next-line max-params
-    static addTorrent(title, aliases, size, details, swarm, lastmod, imported, infoHash) {
+    static addTorrent({title, aliases, size, details, swarm, lastmod, imported, infoHash}) {
         // Validate Data
         if (typeof (title) !== 'string' || typeof (infoHash) !== 'string') {
             // Bail out because we don't have a title or infoHash
@@ -234,4 +233,4 @@ class Provider {
     }
 }
 
-module.exports = Provider;
+export default Provider;
