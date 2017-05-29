@@ -4,7 +4,8 @@
     "description": "",
     "main": "index.js",
     "scripts": {
-        "start": "node index.js | bunyan",
+        "start": "babel-node index.js | bunyan",
+        "start:development": "nodemon index.js --exec babel-node | bunyan",
         "start:imports": "node background/imports.js | bunyan",
         "test": "xo"
     },
@@ -21,8 +22,11 @@
     "homepage": "http://bitcannon.io",
     "dependencies": {
         "app-module-path": "^1.0.4",
-        "bluebird": "^3.5.0",
         "async": "^1.5.0",
+        "babel-cli": "^6.24.1",
+        "babel-preset-es2015": "^6.24.1",
+        "babel-preset-stage-0": "^6.24.1",
+        "bluebird": "^3.5.0",
         "body-parser": "^1.13.1",
         "bunyan": "^1.5.1",
         "compression": "^1.6.0",
