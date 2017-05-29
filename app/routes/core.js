@@ -1,8 +1,10 @@
-const express = require('express');
-const nconf = require('nconf');
-const async = require('async');
-const Torrent = require('../models/Torrent.js');
-const Category = require('../models/Category.js');
+import express from 'express';
+import nconf from 'nconf';
+import async from 'async';
+import {
+    Category,
+    Torrent
+} from '../models';
 
 module.exports = (function() {
     const router = new express.Router();
