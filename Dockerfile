@@ -1,14 +1,19 @@
 FROM node:alpine
+MAINTAINER Alexis Tyler <xo@wvvw.me>
 
-WORKDIR /src
-ADD . .
-COPY ./config.json /etc/config.json
+RUN mkdir /app
 
-RUN yarn install --production && \
-    ln -fs /etc/config.json /src/config.json
+WORKDIR /app
+
+COPY ./package.json .
+COPY ./yarn.lock .
+
+RUN yarn install
+
+ENV MONGO_HOST mongo
+
+COPY . .
 
 EXPOSE 3000
 
-VOLUME "/src"
-
-CMD node index.js
+CMD ["yarn", "start"]

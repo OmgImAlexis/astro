@@ -1,0 +1,30 @@
+version: "3"
+services:
+    web:
+        build: .
+        ports:
+            - '3000:3000'
+        depends_on:
+            - "mongo"
+        links:
+            - "mongo"
+        volumes:
+            - .:/app
+            - /app/node_modules
+    background:
+        build: .
+        command: [
+            "yarn",
+            "start:background:imports"
+        ]
+        depends_on:
+            - "mongo"
+        links:
+            - "mongo"
+        volumes:
+            - .:/app
+            - /app/node_modules
+    mongo:
+        image: "mongo"
+        ports:
+            - "27017"

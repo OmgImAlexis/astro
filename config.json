@@ -9,7 +9,7 @@
     "database": {
         "mongodb": {
             "enabled": true,
-            "host": "localhost",
+            "host": "127.0.0.1",
             "port": 27017,
             "collection": "bitcannon"
         }
@@ -25,7 +25,7 @@
         }
     },
     "session": {
-        "secret": "fab39eb9ed575fbddeb5623f7bc4c1739d144604bdafbe83875b977d0acba716c5bd21667eb67fd1b45f86ff1fdcbff0"
+        "secret": ""
     },
     "trackers": [],
     "providers": {

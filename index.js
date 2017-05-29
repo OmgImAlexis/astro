@@ -23,9 +23,13 @@ nconf.argv().file({
     file: path.resolve(__dirname, 'config.json')
 });
 
+const mongoHost = process.env.MONGO_HOST || nconf.get('database:mongodb:host');
+const uri = 'mongodb://' + mongoHost + ':' + nconf.get('database:mongodb:port') + '/' + nconf.get('database:mongodb:collection');
+
 if (nconf.get('database:mongodb:enabled')) {
-    mongoose.connect('mongodb://' + nconf.get('database:mongodb:host') + ':' + nconf.get('database:mongodb:port') + '/' + nconf.get('database:mongodb:collection'), err => {
+    mongoose.connect(uri, err => {
         if (err) {
+            log.error(uri);
             log.error('Cannot connect to mongodb, please check your config.json');
             process.exit(1);
         }
