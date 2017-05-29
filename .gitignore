@@ -49,3 +49,6 @@ import.txt
 
 # Vagrant
 .vagrant
+
+# Log files
+*.log

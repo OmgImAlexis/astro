@@ -12,7 +12,7 @@ Vagrant.configure(2) do |config|
 
   # Every Vagrant development environment requires a box. You can search for
   # boxes at https://atlas.hashicorp.com/search.
-  config.vm.box = "ubuntu/trusty64"
+  config.vm.box = "ubuntu/xenial64"
 
   # Disable automatic box update checking. If you disable this, then
   # boxes will only be checked for updates when the user runs
@@ -65,12 +65,22 @@ Vagrant.configure(2) do |config|
   # Puppet, Chef, Ansible, Salt, and Docker are also available. Please see the
   # documentation for more information about their specific syntax and use.
   config.vm.provision "shell", inline: <<-SHELL
-     sudo apt-get -qq update
-     DEBIAN_FRONTEND=noninteractive sudo apt-get install -y build-essential git mongodb mongodb-server &>/dev/null
-     su root -c 'curl -L https://git.io/n-install -O &>/dev/null 2>&1; bash n-install -q; rm n-install'
-     /root/n/bin/n 6.2.1 && \
+    set -e
+    sudo apt-get -qq update
+    DEBIAN_FRONTEND=noninteractive sudo apt-get install -y build-essential git mongodb mongodb-server &>/dev/null
+    sudo systemctl enable --now mongodb.service &> /dev/null
+  SHELL
+  config.vm.provision "shell", privileged: false, inline: <<-SHELL
+     set -e
+     curl -L https://git.io/n-install -O &>/dev/null 2>&1 && \
+     bash n-install -q &> /dev/null
+     rm n-install || true
+     export N_PREFIX="$HOME/n"; [[ :$PATH: == *":$N_PREFIX/bin:"* ]] || PATH+=":$N_PREFIX/bin"  # Added by n-install (see http://git.io/n-install-repo).
+     export PATH="$N_PREFIX/bin:$HOME/.yarn/bin:$PATH"
+     n lts && \
+     curl -o- -L https://yarnpkg.com/install.sh | bash && \
      cd /vagrant && \
-     /root/n/bin/npm install
-     /root/n/bin/node background/imports.js
+     yarn install
+     echo '[[ $- =~ i ]] && cd /vagrant' >> ~/.bashrc
   SHELL
 end

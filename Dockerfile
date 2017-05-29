@@ -1,9 +1,11 @@
-FROM mhart/alpine-node
+FROM node:alpine
 
 WORKDIR /src
 ADD . .
+COPY ./config.json /etc/config.json
 
-RUN npm install --production
+RUN yarn install --production && \
+    ln -fs /etc/config.json /src/config.json
 
 EXPOSE 3000
 
