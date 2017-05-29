@@ -6,20 +6,19 @@
  * and perhaps queue the provider to be run again?
 */
 
- import path from 'path';
- import {cpus} from 'os';
+import path from 'path';
+import cluster from 'cluster';
+import nconf from 'nconf';
+import {cpus} from 'os';
 
- import cluster from 'cluster';
- import nconf from 'nconf';
+import Log from './logging';
 
- import Log from './logging';
+const numCPUs = cpus().length;
 
- const numCPUs = cpus().length;
-
- nconf.use('memory');
- nconf.argv().file({
-     file: path.resolve(__dirname, '../config.json')
- });
+nconf.use('memory');
+nconf.argv().file({
+    file: path.resolve(__dirname, '../config.json')
+});
 
  const log = new Log('imports');
 
@@ -34,9 +33,10 @@
      try {
          require(`${__dirname}/providers/${this.provider}`);
      } catch (err) {
-         log.info(`An error occurred loading the ${this.provider} provider.
-The error is as follows:
-${err.message || ''}`);
+         log.info(outdent`
+             An error occurred loading the ${this.provider} provider.
+             The error is as follows: ${err.message || ''}
+         `);
          log.trace(err);
      }
  };

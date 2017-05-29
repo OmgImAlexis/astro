@@ -3855,6 +3855,10 @@ osx-release@^1.0.0:
   dependencies:
     minimist "^1.1.0"
 
+outdent@^0.3.0:
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/outdent/-/outdent-0.3.0.tgz#fad18a9c061a0938f38e8071d16c4024423f4323"
+
 output-file-sync@^1.1.0:
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/output-file-sync/-/output-file-sync-1.1.2.tgz#d0a33eefe61a205facb90092e826598d5245ce76"
