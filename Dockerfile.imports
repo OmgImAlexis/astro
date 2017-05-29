@@ -1,0 +1,11 @@
+FROM node:alpine
+
+COPY ./config.json /etc/config.json
+COPY . /var/lib/bitcannon/imports
+
+WORKDIR /var/lib/bitcannon/imports
+
+RUN yarn install && \
+    ln -fs /etc/config.json /var/lib/bitcannon/imports/config.json
+
+CMD ["node", "background/imports.js"]
