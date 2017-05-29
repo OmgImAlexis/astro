@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "xo"
   },
   "repository": {
     "type": "git",
@@ -19,6 +19,7 @@
   "homepage": "http://bitcannon.io",
   "dependencies": {
     "app-module-path": "^1.0.4",
+    "bluebird": "^3.5.0",
     "async": "^1.5.0",
     "body-parser": "^1.13.1",
     "bunyan": "^1.5.1",
@@ -36,8 +37,45 @@
     "jade": "^1.11.0",
     "line-by-line": "^0.1.4",
     "method-override": "^2.3.3",
-    "mongoose": "^4.0.5",
+    "mongodb": "^2.1.18",
+    "mongoose": "^4.5.0",
     "nconf": "^0.8.2",
-    "underscore": "^1.8.3"
-  }
+    "parse-torrent": "^5.7.3",
+    "underscore": "^1.8.3",
+    "xml2js": "^0.4.16"
+  },
+  "devDependencies": {
+    "xo": "^0.18.2"
+  },
+  "xo": {
+  "space": 4,
+  "rules": {
+      "space-before-function-paren": [
+          "error",
+          "never"
+      ],
+      "unicorn/no-new-buffer": "off",
+      "unicorn/filename-case": "off",
+      "unicorn/custom-error-definition": "off",
+      "unicorn/no-array-instanceof": "off",
+      "unicorn/catch-error-name": "off",
+      "unicorn/no-process-exit": "off",
+      "unicorn/throw-new-error": "off",
+      "unicorn/number-literal-case": "off",
+      "unicorn/prefer-starts-ends-with": "off",
+      "unicorn/prefer-type-error": "off",
+      "unicorn/explicit-length-check": "off",
+      "unicorn/no-abusive-eslint-disable": "off"
+  },
+  "envs": [
+      "node",
+      "es6"
+  ]
+},
+"babel": {
+    "presets": [
+        "es2015",
+        "stage-0"
+    ]
+ }
 }

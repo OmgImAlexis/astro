@@ -1,12 +1,23 @@
 var mongoose = require('mongoose');
 
 var categorySchema = mongoose.Schema({
-    title: String,
-    slug: String,
+    title: {
+        type: String,
+        required: true,
+        unique: true
+    },
+    slug: {
+        type: String,
+        required: true,
+        unique: true
+    },
     aliases: [
         String
     ],
-    torrentCount: Number
+    torrentCount: {
+        type: Number,
+        default: 0
+    }
 });
 
 function slugify(text) {

@@ -1,4 +1,5 @@
 {
+    "esversion": 6,
     "maxerr": 2,
     "bitwise": true,
     "camelcase": true,

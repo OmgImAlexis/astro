@@ -1,42 +1,54 @@
 {
-    "web": {
-        "port": 3000,
-        "title": "BitCannon",
-        "torrentsPerPage": 100,
-        "defaultSearchSorting": "seeders",
-        "defaultSearchOrder": "desc"
-    },
-    "database": {
-        "mongodb": {
-            "enabled": true,
-            "host": "localhost",
-            "port": 27017,
-            "collection": "bitcannon"
-        }
-    },
-    "session": {
-        "secret": "asdasdasdasd43jn5kj2n43k"
-    },
-    "trackers": "",
-    "downloads": {
-        "hourly": {
-            "kat": {
-                "enabled": true,
-                "apiKey": "fknelkn32l4kn23l4kn23lk4n"
-            },
-            "torrentproject": {
-                "enabled": true
-            }
-        },
-        "daily": {
-            "tpb": ""
-        }
-    },
-    "api": {
-        "keyNeeded": true,
-        "key": "random_key"
-    },
-    "logs": {
-        "location": "./logs/error.log"
+  "web": {
+    "port": 3000,
+    "title": "BitCannon",
+    "torrentsPerPage": 100,
+    "defaultSearchSorting": "seeders",
+    "defaultSearchOrder": "desc"
+  },
+  "database": {
+    "mongodb": {
+      "enabled": true,
+      "host": "localhost",
+      "port": 27017,
+      "collection": "bitcannon"
     }
+  },
+  "torrents": {
+    "whitelist": {
+      "enabled": false,
+      "categories": []
+    },
+    "blacklist": {
+      "enabled": false,
+      "categories": []
+    }
+  },
+  "session": {
+    "secret": ""
+  },
+  "trackers": [""],
+  "providers": {
+    "tpb": {
+      "enabled": false
+    },
+    "rss": {
+      "enabled": true,
+      "feeds": [
+        {
+          "url": "https://yts.ag/rss",
+          "category": "Movies",
+          "duration": "@hourly"
+        }
+      ]
+    }
+  },
+  "api": {
+    "keyNeeded": false,
+    "key": ""
+  },
+  "logs": {
+    "provider": "default",
+    "location": "logs/error.log"
+  }
 }

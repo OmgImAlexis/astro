@@ -14,7 +14,6 @@ var express = require('express'),
     path = require('path'),
     compression = require('compression');
 
-nconf.use('memory');
 nconf.argv().env('__').file({
     file: path.resolve(__dirname + '/config.json')
 });
@@ -57,6 +56,19 @@ app.use(bodyParser.urlencoded({
 }));
 app.use(bodyParser.json());
 app.use(methodOverride());
+
+if(!nconf.get('session:secret') || nconf.get('session.secret') === '') {
+  const crypto = require('crypto');
+  crypto.randomBytes(48, function(err, buf) {
+    if (err) {
+      console.trace(err);
+      throw err;
+    }
+    nconf.set('session:secret', buf.toString('hex'));
+    nconf.save();
+  });
+}
+
 app.use(session({
     secret: nconf.get('session:secret'),
     name: 'session',
