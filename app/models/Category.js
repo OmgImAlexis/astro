@@ -1,6 +1,9 @@
-var mongoose = require('mongoose');
+import mongoose from 'mongoose';
+import {slugify} from '../../utils';
 
-var categorySchema = mongoose.Schema({
+const Schema = mongoose.Schema;
+
+const Category = new Schema({
     title: {
         type: String,
         required: true,
@@ -20,18 +23,9 @@ var categorySchema = mongoose.Schema({
     }
 });
 
-function slugify(text) {
-    return text.toString().toLowerCase()
-        .replace(/\s+/g, '-')        // Replace spaces with -
-        .replace(/[^\w\-]+/g, '')   // Remove all non-word chars
-        .replace(/\-\-+/g, '-')      // Replace multiple - with single -
-        .replace(/^-+/, '')          // Trim - from start of text
-        .replace(/-+$/, '');         // Trim - from end of text
-}
-
-categorySchema.pre('save', function (next) {
+Category.pre('save', function(next) {
     this.slug = slugify(this.title);
     next();
 });
 
-module.exports = mongoose.model('Category', categorySchema);
+export default mongoose.model('Category', Category);
