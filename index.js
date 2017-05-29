@@ -44,7 +44,7 @@ const app = express();
 app.disable('x-powered-by');
 
 app.set('views', path.resolve(__dirname, 'app/views'));
-app.set('view engine', 'jade');
+app.set('view engine', 'pug');
 app.use(compression());
 app.use(express.static(path.resolve(__dirname, 'app/public'), {
     maxAge: 86400000
