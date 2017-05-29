@@ -1,81 +1,83 @@
 {
-  "name": "bitcannon-web",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "xo"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/bitcannon-org/bitcannon-web.git"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/bitcannon-org/bitcannon-web/issues"
-  },
-  "homepage": "http://bitcannon.io",
-  "dependencies": {
-    "app-module-path": "^1.0.4",
-    "bluebird": "^3.5.0",
-    "async": "^1.5.0",
-    "body-parser": "^1.13.1",
-    "bunyan": "^1.5.1",
-    "compression": "^1.6.0",
-    "connect-mongo": "^0.8.1",
-    "cookie-parser": "^1.3.5",
-    "event-stream": "^3.3.2",
-    "express": "^4.12.4",
-    "express-session": "^1.11.3",
-    "grunt": "^0.4.5",
-    "grunt-bower-concat": "^0.6.0",
-    "grunt-contrib-cssmin": "^0.14.0",
-    "grunt-contrib-jshint": "^0.11.3",
-    "grunt-contrib-uglify": "^0.10.0",
-    "jade": "^1.11.0",
-    "line-by-line": "^0.1.4",
-    "method-override": "^2.3.3",
-    "mongodb": "^2.1.18",
-    "mongoose": "^4.5.0",
-    "nconf": "^0.8.2",
-    "parse-torrent": "^5.7.3",
-    "underscore": "^1.8.3",
-    "xml2js": "^0.4.16"
-  },
-  "devDependencies": {
-    "xo": "^0.18.2"
-  },
-  "xo": {
-  "space": 4,
-  "rules": {
-      "space-before-function-paren": [
-          "error",
-          "never"
-      ],
-      "unicorn/no-new-buffer": "off",
-      "unicorn/filename-case": "off",
-      "unicorn/custom-error-definition": "off",
-      "unicorn/no-array-instanceof": "off",
-      "unicorn/catch-error-name": "off",
-      "unicorn/no-process-exit": "off",
-      "unicorn/throw-new-error": "off",
-      "unicorn/number-literal-case": "off",
-      "unicorn/prefer-starts-ends-with": "off",
-      "unicorn/prefer-type-error": "off",
-      "unicorn/explicit-length-check": "off",
-      "unicorn/no-abusive-eslint-disable": "off"
-  },
-  "envs": [
-      "node",
-      "es6"
-  ]
-},
-"babel": {
-    "presets": [
-        "es2015",
-        "stage-0"
-    ]
- }
+    "name": "bitcannon-web",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "start": "node index.js | bunyan",
+        "start:imports": "node background/imports.js | bunyan",
+        "test": "xo"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/bitcannon-org/bitcannon-web.git"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/bitcannon-org/bitcannon-web/issues"
+    },
+    "homepage": "http://bitcannon.io",
+    "dependencies": {
+        "app-module-path": "^1.0.4",
+        "bluebird": "^3.5.0",
+        "async": "^1.5.0",
+        "body-parser": "^1.13.1",
+        "bunyan": "^1.5.1",
+        "compression": "^1.6.0",
+        "connect-mongo": "^0.8.1",
+        "cookie-parser": "^1.3.5",
+        "event-stream": "^3.3.2",
+        "express": "^4.12.4",
+        "express-session": "^1.11.3",
+        "grunt": "^0.4.5",
+        "grunt-bower-concat": "^0.6.0",
+        "grunt-contrib-cssmin": "^0.14.0",
+        "grunt-contrib-jshint": "^0.11.3",
+        "grunt-contrib-uglify": "^0.10.0",
+        "jade": "^1.11.0",
+        "line-by-line": "^0.1.4",
+        "method-override": "^2.3.3",
+        "mongodb": "^2.1.18",
+        "mongoose": "^4.5.0",
+        "nconf": "^0.8.2",
+        "parse-torrent": "^5.7.3",
+        "underscore": "^1.8.3",
+        "xml2js": "^0.4.16"
+    },
+    "devDependencies": {
+        "xo": "^0.18.2"
+    },
+    "xo": {
+        "space": 4,
+        "rules": {
+            "space-before-function-paren": [
+                "error",
+                "never"
+            ],
+            "unicorn/no-new-buffer": "off",
+            "unicorn/filename-case": "off",
+            "unicorn/custom-error-definition": "off",
+            "unicorn/no-array-instanceof": "off",
+            "unicorn/catch-error-name": "off",
+            "unicorn/no-process-exit": "off",
+            "unicorn/throw-new-error": "off",
+            "unicorn/number-literal-case": "off",
+            "unicorn/prefer-starts-ends-with": "off",
+            "unicorn/prefer-type-error": "off",
+            "unicorn/explicit-length-check": "off",
+            "unicorn/no-abusive-eslint-disable": "off"
+        },
+        "envs": [
+            "node",
+            "es6"
+        ]
+    },
+    "babel": {
+        "presets": [
+            "es2015",
+            "stage-0"
+        ]
+    }
 }

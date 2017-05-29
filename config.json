@@ -1,54 +1,52 @@
 {
-  "web": {
-    "port": 3000,
-    "title": "BitCannon",
-    "torrentsPerPage": 100,
-    "defaultSearchSorting": "seeders",
-    "defaultSearchOrder": "desc"
-  },
-  "database": {
-    "mongodb": {
-      "enabled": true,
-      "host": "localhost",
-      "port": 27017,
-      "collection": "bitcannon"
-    }
-  },
-  "torrents": {
-    "whitelist": {
-      "enabled": false,
-      "categories": []
+    "web": {
+        "port": 3000,
+        "title": "BitCannon",
+        "torrentsPerPage": 100,
+        "defaultSearchSorting": "seeders",
+        "defaultSearchOrder": "desc"
     },
-    "blacklist": {
-      "enabled": false,
-      "categories": []
-    }
-  },
-  "session": {
-    "secret": ""
-  },
-  "trackers": [""],
-  "providers": {
-    "tpb": {
-      "enabled": false
-    },
-    "rss": {
-      "enabled": true,
-      "feeds": [
-        {
-          "url": "https://yts.ag/rss",
-          "category": "Movies",
-          "duration": "@hourly"
+    "database": {
+        "mongodb": {
+            "enabled": true,
+            "host": "localhost",
+            "port": 27017,
+            "collection": "bitcannon"
         }
-      ]
+    },
+    "torrents": {
+        "whitelist": {
+            "enabled": false,
+            "categories": []
+        },
+        "blacklist": {
+            "enabled": false,
+            "categories": []
+        }
+    },
+    "session": {
+        "secret": "fab39eb9ed575fbddeb5623f7bc4c1739d144604bdafbe83875b977d0acba716c5bd21667eb67fd1b45f86ff1fdcbff0"
+    },
+    "trackers": [],
+    "providers": {
+        "tpb": {
+            "enabled": false
+        },
+        "rss": {
+            "enabled": true,
+            "feeds": [{
+                "url": "https://yts.ag/rss",
+                "category": "Movies",
+                "duration": "@hourly"
+            }]
+        }
+    },
+    "api": {
+        "keyNeeded": false,
+        "key": ""
+    },
+    "logs": {
+        "provider": "default",
+        "location": "logs/error.log"
     }
-  },
-  "api": {
-    "keyNeeded": false,
-    "key": ""
-  },
-  "logs": {
-    "provider": "default",
-    "location": "logs/error.log"
-  }
 }
