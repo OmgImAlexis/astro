@@ -9,6 +9,9 @@
         "start:background:imports": "cross-env NODE_ENV=production babel-node background/imports.js | bunyan",
         "test": "xo && ava"
     },
+    "engines": {
+        "node": ">=4.0.0"
+    },
     "repository": {
         "type": "git",
         "url": "git+https://github.com/bitcannon-org/bitcannon-web.git"
