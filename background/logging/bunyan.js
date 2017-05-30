@@ -2,11 +2,11 @@
  * @file A logger that outputs using {@link https://github.com/trentm/node-bunyan|Bunyan}
  */
 
-const path = require('path');
-const nconf = require('nconf');
+import path from 'path';
+import bunyan from 'bunyan';
 
-const bunyan = require('bunyan');
-const Logger = require('./logger');
+import config from '../../app/config';
+import Logger from './logger';
 
 // Private Methods
 const formatBunyanInfoLog = Symbol('bunyan-log-format');
@@ -28,10 +28,11 @@ class BunyanLogger extends Logger {
 
         this[formatBunyanInfoLog].prototype.write = function(rec) {
             console.log('[%s] [%s] %s: %s',
-        threadType,
-        rec.time,
-        bunyan.nameFromLevel[rec.level],
-        rec.msg);
+                threadType,
+                rec.time,
+                bunyan.nameFromLevel[rec.level],
+                rec.msg
+            );
         };
 
         this[logger] = bunyan.createLogger({
@@ -45,8 +46,8 @@ class BunyanLogger extends Logger {
                     type: 'raw'
                 }, {
                     level: 'error',
-          // Log ERROR and above to a file
-                    path: path.resolve(nconf.get('logs:location'))
+                    // Log ERROR and above to a file
+                    path: path.resolve(config.get('logs.location'))
                 }
             ]
         });

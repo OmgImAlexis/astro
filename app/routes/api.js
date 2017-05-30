@@ -1,7 +1,7 @@
-import nconf from 'nconf';
 import async from 'async';
 import {Router} from 'express';
 
+import config from '../config';
 import {
     Category,
     Torrent
@@ -12,14 +12,14 @@ const router = new Router();
 router.get('/', (req, res) => {
     res.json({
         message: 'Welcome to the bitcannon API',
-        apiKeyRequired: nconf.get('api:keyNeeded'),
+        apiKeyRequired: config.get('api.keyNeeded'),
         status: 200
     });
 });
 
 router.use((req, res, next) => {
-    if (nconf.get('api:keyNeeded') === true) {
-        if (req.query.apiKey === nconf.get('api:key')) {
+    if (config.get('api.keyNeeded') === true) {
+        if (req.query.apiKey === config.get('api.key')) {
             next();
         } else {
             res.json({
@@ -88,7 +88,7 @@ router.get('/category/:slug', (req, res, next) => {
         function(category, callback) {
             Torrent.find({
                 category: category._id
-            }).limit(nconf.get('web:torrentsPerPage')).populate('category').sort('_id').exec((err, torrents) => {
+            }).limit(config.get('app.torrentsPerPage')).populate('category').sort('_id').exec((err, torrents) => {
                 if (err) {
                     next(err);
                 }
@@ -119,9 +119,9 @@ router.get('/torrent/:infoHash', (req, res, next) => {
 });
 
 router.get('/search', (req, res, next) => {
-    const limit = req.query.limit || nconf.get('web:torrentsPerPage');
-    const sorting = (req.query.sort || nconf.get('web:defaultSearchSorting')).toLowerCase();
-    const order = (req.query.order || nconf.get('web:defaultSearchOrder')).toLowerCase();
+    const limit = req.query.limit || config.get('app.torrentsPerPage');
+    const sorting = (req.query.sort || config.get('app.defaultSearchSorting')).toLowerCase();
+    const order = (req.query.order || config.get('app.defaultSearchOrder')).toLowerCase();
     const sort = {
         score: {
             $meta: 'textScore'

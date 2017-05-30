@@ -1,14 +1,14 @@
 'use strict';
-const nconf = require('nconf');
+import config from '../app/config';
 
 try {
-    if (!nconf.get('logs:provider') || nconf.get('logs:provider') === 'default') {
+    if (!config.get('logs.provider') || config.get('logs.provider') === 'default') {
         module.exports = require('./logging/bunyan');
     } else {
-        module.exports = require('./logging/' + nconf.get('logs:provider'));
+        module.exports = require('./logging/' + config.get('logs.provider'));
     }
 } catch (err) {
-    console.info(`An error occurred loading the ${(nconf.get('logs:provider') || 'default')} logging provider.
+    console.info(`An error occurred loading the ${(config.get('logs.provider') || 'default')} logging provider.
 The error is as follows: `);
     console.error(err);
     console.info('Attempting to fallback to default logging provider...');

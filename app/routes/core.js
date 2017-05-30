@@ -1,7 +1,7 @@
-import nconf from 'nconf';
 import async from 'async';
 import {Router} from 'express';
 
+import config from '../config';
 import {
     Category,
     Torrent
@@ -84,7 +84,7 @@ router.get('/category/:slug', (req, res, next) => {
         }, (category, callback) => {
             Torrent.find({
                 category: category._id
-            }).limit(nconf.get('web:torrentsPerPage')).populate('category').sort('_id').exec((err, torrents) => {
+            }).limit(config.get('app.torrentsPerPage')).populate('category').sort('_id').exec((err, torrents) => {
                 if (err) {
                     callback(err);
                 }
@@ -102,7 +102,7 @@ router.get('/category/:slug', (req, res, next) => {
 });
 
 router.get('/search', (req, res, next) => {
-    const limit = req.query.limit || nconf.get('web:torrentsPerPage');
+    const limit = req.query.limit || config.get('app.torrentsPerPage');
     const search = {};
     async.waterfall([
         function(callback) {

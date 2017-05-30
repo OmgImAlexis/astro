@@ -1,7 +1,6 @@
 import path from 'path';
 import http from 'http';
 import express from 'express';
-import nconf from 'nconf';
 import cookieParser from 'cookie-parser';
 import bodyParser from 'body-parser';
 import methodOverride from 'method-override';
@@ -9,6 +8,7 @@ import session from 'express-session';
 import mongoose from 'mongoose';
 import compression from 'compression';
 
+import config from '../app/config';
 import log from './app/log';
 import {
     api,
@@ -19,14 +19,10 @@ const MongoStore = require('connect-mongo')(session);
 
 mongoose.Promise = Promise;
 
-nconf.argv().file({
-    file: path.resolve(__dirname, 'config.json')
-});
+const mongoHost = process.env.MONGO_HOST || config.get('database.mongodb.host');
+const uri = 'mongodb://' + mongoHost + ':' + config.get('database.mongodb.port') + '/' + config.get('database.mongodb.collection');
 
-const mongoHost = process.env.MONGO_HOST || nconf.get('database:mongodb:host');
-const uri = 'mongodb://' + mongoHost + ':' + nconf.get('database:mongodb:port') + '/' + nconf.get('database:mongodb:collection');
-
-if (nconf.get('database:mongodb:enabled')) {
+if (config.get('database.mongodb.enabled')) {
     mongoose.connect(uri, err => {
         if (err) {
             log.error(uri);
@@ -56,7 +52,7 @@ app.use(bodyParser.urlencoded({
 app.use(bodyParser.json());
 app.use(methodOverride());
 
-if (!nconf.get('session:secret') || nconf.get('session.secret') === '') {
+if (!config.get('session.secret') || config.get('session.secret') === '') {
     const crypto = require('crypto');
     crypto.randomBytes(48, (err, buf) => {
         if (err) {
@@ -64,13 +60,12 @@ if (!nconf.get('session:secret') || nconf.get('session.secret') === '') {
             throw err;
         }
         const secret = buf.toString('hex');
-        nconf.set('session:secret', secret);
-        nconf.save();
+        config.set('session.secret', secret);
     });
 }
 
 app.use(session({
-    secret: nconf.get('session:secret'),
+    secret: config.get('session:secret'),
     name: 'session',
     store: new MongoStore({
         mongooseConnection: mongoose.connection
@@ -81,9 +76,9 @@ app.use(session({
 }));
 
 app.use((req, res, next) => {
-    res.locals.title = nconf.get('web:title');
+    res.locals.title = config.get('app.title');
     res.locals.currentPath = req.originalUrl;
-    res.locals.trackers = nconf.get('trackers');
+    res.locals.trackers = config.get('trackers');
     next();
 });
 
@@ -98,6 +93,6 @@ app.use((req, res) => {
     });
 });
 
-http.createServer(app).listen(nconf.get('web:port'), '0.0.0.0', () => {
-    log.info('Running on port ' + nconf.get('web:port'));
+http.createServer(app).listen(config.get('app.port'), '0.0.0.0', () => {
+    log.info('Running on port ' + config.get('app.port'));
 });

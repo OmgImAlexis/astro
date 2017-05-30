@@ -9,9 +9,9 @@
 
 import zlib from 'zlib';
 import url from 'url';
-import nconf from 'nconf';
 import {parseString} from 'xml2js';
 
+import config from '../../app/config';
 import Provider from './provider';
 
 // eslint-disable-next-line one-var
@@ -305,7 +305,7 @@ class RSS extends Provider {
 
 const feeds = [];
 
-for (let i = 0; i < nconf.get('providers:rss:feeds').length; i++) {
-    feeds.push(new RSS(nconf.get('providers:rss:feeds')[Number(i)]));
+for (let i = 0; i < config.get('providers.rss.feeds').length; i++) {
+    feeds.push(new RSS(config.get('providers.rss.feeds')[Number(i)]));
     feeds[i].startup();
 }

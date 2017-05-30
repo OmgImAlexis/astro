@@ -6,22 +6,16 @@
  * and perhaps queue the provider to be run again?
 */
 
-import path from 'path';
 import cluster from 'cluster';
 import {cpus} from 'os';
 
-import nconf from 'nconf';
 import outdent from 'outdent';
 import {MongoClient} from 'mongodb';
 
+import config from '../app/config';
 import Log from './logging';
 
 const numCPUs = cpus().length;
-
-nconf.use('memory');
-nconf.argv().file({
-    file: path.resolve(__dirname, '../config.json')
-});
 
 const log = new Log('imports');
 
@@ -58,14 +52,14 @@ if (cluster.isMaster) {
         require('app-module-path').addPath(`${__dirname.substring(0, __dirname.lastIndexOf('/'))}/app`);
     }
 
-    if (nconf.get('torrents:whitelist:enabled') && nconf.get('torrents:blacklist:enabled')) {
+    if (config.get('torrents.whitelist.enabled') && config.get('torrents.blacklist.enabled')) {
         log.error('You cannot use the whitelist and the blacklist at the same time!');
         throw new Error('You cannot use the whitelist and the blacklist at the same time!');
     }
 
-    if (nconf.get('database:mongodb:enabled')) {
-        const mongoHost = process.env.MONGO_HOST || nconf.get('database:mongodb:host');
-        const uri = `mongodb://${mongoHost}:${nconf.get('database:mongodb:port')}/${nconf.get('database:mongodb:collection')}`;
+    if (config.get('database.mongodb.enabled')) {
+        const mongoHost = process.env.MONGO_HOST || config.get('database.mongodb.host');
+        const uri = `mongodb://${mongoHost}:${config.get('database.mongodb.port')}/${config.get('database.mongodb.collection')}`;
         MongoClient.connect(uri, (err, db) => {
             if (err) {
                 log.warn('Cannot connect to mongodb, please check your config.json');
@@ -127,13 +121,13 @@ if (cluster.isMaster) {
         }
     };
 
-    for (const provider in nconf.get('providers')) {
+    for (const provider in config.get('providers')) {
         if (provider === 'provider') {
             log.warn('You cannot directly use the provider file. This is a helper file for other providers.');
         }
          // For single core processors we don't fork, we just load all of the providers
          // and let Node do its thing.
-        if (!nconf.get(`providers:${provider}:enabled`)) {
+        if (!config.get(`providers:${provider}:enabled`)) {
             continue;
         }
         if (numCPUs === 1) {

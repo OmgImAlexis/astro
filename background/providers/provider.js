@@ -4,14 +4,14 @@
 
 'use strict';
 
-import nconf from 'nconf';
 import outdent from 'outdent';
 import {MongoClient} from 'mongodb';
 
+import config from '../../app/config';
 import Log from '../logging';
 
 const log = new Log('provider');
-const uri = `mongodb://${nconf.get('database:mongodb:host')}:${nconf.get('database:mongodb:port')}/${nconf.get('database:mongodb:collection')}`;
+const uri = `mongodb://${config.get('database.mongodb.host')}:${config.get('database.mongodb.port')}/${config.get('database.mongodb.collection')}`;
 let db;
 
 /**
@@ -52,8 +52,8 @@ class Provider {
         this.setDuration();
 
         // Sets whether or not a provider should run at startup
-        if (typeof (nconf.get(`providers:${provider}:startup`)) === 'boolean') {
-            this.runAtStartup = nconf.get(`providers:${provider}:startup`);
+        if (typeof (config.get(`providers.${provider}.startup`)) === 'boolean') {
+            this.runAtStartup = config.get(`providers.${provider}.startup`);
         } else {
             // By default runAtStartup is true - The user has to be explicit if they
             // don't want a provider to run at startup.
@@ -100,7 +100,7 @@ class Provider {
     * @todo remove magic numbers (make them constants)
     * @param duration {string|number} - The duration to set
     */
-    setDuration(duration = nconf.get(`providers:${this.provider}:config:duration`)) {
+    setDuration(duration = config.get(`providers.${this.provider}.config.duration`)) {
         switch (duration) {
             case '@hourly':
                 this.duration = 3600000;
@@ -142,15 +142,15 @@ class Provider {
     * @param {string} category - A torrents category
     */
     static shouldAddTorrent(category) {
-        if (nconf.get('torrents:whitelist:enabled')) {
-            for (let i = 0; i < nconf.get('torrents:whitelist:categories'); i++) {
-                if (category.toUpperCase() === nconf.get('torrents:whitelist:categories')[i]) {
+        if (config.get('torrents.whitelist.enabled')) {
+            for (let i = 0; i < config.get('torrents.whitelist.categories'); i++) {
+                if (category.toUpperCase() === config.get('torrents.whitelist.categories')[i]) {
                     return true;
                 }
             }
-        } else if (nconf.get('torrents:blacklist:enabled')) {
-            for (let j = 0; j < nconf.get('torrents:blacklist:enabled'); j++) {
-                if (category.toUpperCase() === nconf.get('torrents:blacklist:categories')[j]) {
+        } else if (config.get('torrents:blacklist:enabled')) {
+            for (let j = 0; j < config.get('torrents.blacklist.enabled'); j++) {
+                if (category.toUpperCase() === config.get('torrents.blacklist.categories')[j]) {
                     return false;
                 }
             }
@@ -174,9 +174,7 @@ class Provider {
             aliases = 'Other'; // Category isn't defined so set it to 'Other'
         }
         if (!Provider.shouldAddTorrent(aliases)) {
-            this.log.info('Skipping torrent due to being in ' +
-                ((nconf.get('torrents:whitelist:enabled')) ? 'whitelist' : 'blacklist')
-            );
+            this.log.info('Skipping torrent due to being in ' + ((config.get('torrents.whitelist.enabled')) ? 'whitelist' : 'blacklist'));
             return;
         }
         if (!lastmod) {
