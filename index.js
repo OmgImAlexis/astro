@@ -1,3 +1,5 @@
+'use strict';
+
 import path from 'path';
 import http from 'http';
 import express from 'express';
@@ -9,7 +11,10 @@ import mongoose from 'mongoose';
 import compression from 'compression';
 
 import config from './app/config';
-import log from './app/log';
+import {
+    generalLogger as log,
+    mongooseLogger
+} from './app/log';
 import {
     api,
     core
@@ -30,6 +35,19 @@ if (config.get('database.mongodb.enabled')) {
             process.exit(1);
         }
     });
+    if (process.env.NODE_ENV !== 'production') {
+        mongoose.set('debug', (coll, method, query, doc, options) => {  // eslint-disable-line max-params
+            mongooseLogger.info({
+                query: {
+                    coll,
+                    method,
+                    query,
+                    doc,
+                    options
+                }
+            });
+        });
+    }
 } else {
     log.error('No database is enabled, please check your config.json');
     process.exit(1);
