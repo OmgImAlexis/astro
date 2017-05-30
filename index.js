@@ -8,7 +8,7 @@ import session from 'express-session';
 import mongoose from 'mongoose';
 import compression from 'compression';
 
-import config from '../app/config';
+import config from './app/config';
 import log from './app/log';
 import {
     api,

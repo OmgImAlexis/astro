@@ -2,7 +2,8 @@ import path from 'path';
 import bunyan from 'bunyan';
 
 import {version} from '../../package';
-import {logs as logConfig} from '../../config';
+
+import config from '../config';
 
 const log = bunyan.createLogger({
     name: 'Bitcannon',
@@ -13,7 +14,7 @@ const log = bunyan.createLogger({
             stream: process.stdout
         }, {
             level: 'error',
-            path: logConfig.location || path.resolve(__dirname, '../../logs/error.log')
+            path: config.get('logs.location') || path.resolve(__dirname, '../../logs/error.log')
         }
     ]
 });
