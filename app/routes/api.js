@@ -2,6 +2,7 @@ import async from 'async';
 import {Router} from 'express';
 
 import config from '../config';
+import {version} from '../../package';
 import {
     Category,
     Torrent
@@ -13,7 +14,8 @@ router.get('/', (req, res) => {
     res.json({
         message: 'Welcome to the bitcannon API',
         apiKeyRequired: config.get('api.keyNeeded'),
-        status: 200
+        status: 200,
+        version
     });
 });
 
@@ -36,89 +38,59 @@ router.get('/stats', (req, res) => {
     res.send('Welcome to the _ api');
 });
 
-router.get('/browse', (req, res, next) => {
-    Category.find({}).sort({
+router.get('/browse', async (req, res, next) => {
+    const categories = await Category.find({}).sort({
         title: 1
-    }).exec((err, categories) => {
-        if (err) {
-            next(err);
-        }
-        async.each(categories, (category, callback) => {
-            // This is to check if the calculation is already done for the category
-            // If a new one is added and the calculation isn't done then it does it and saves it for later
-            if (category.torrentCount < 0 || !category.torrentCount) {
-                Torrent.count({
-                    category: category._id
-                }).exec((err, torrentCount) => {
-                    if (err) {
-                        next(err);
-                    }
-                    category.torrentCount = torrentCount;
-                    category.save();
-                    callback(null);
-                });
-            } else {
-                callback(null);
-            }
-        }, err => {
-            if (err) {
-                next(err);
-            }
-            res.json({
-                categories
-            });
-        });
-    });
-});
+    }).exec().catch(next);
 
-router.get('/category/:slug', (req, res, next) => {
-    async.waterfall([
-        function(callback) {
-            Category.findOne({
-                slug: req.params.slug
-            }).exec((err, category) => {
-                if (err) {
-                    callback(err);
-                }
-                if (category) {
-                    callback(null, category);
-                }
-            });
-        },
-        function(category, callback) {
-            Torrent.find({
+    async.each(categories, async (category, callback) => {
+        // This is to check if the calculation is already done for the category
+        // If a new one is added and the calculation isn't done then it does it and saves it for later
+        if (category.torrentCount < 0 || !category.torrentCount) {
+            const count = await Torrent.count({
                 category: category._id
-            }).limit(config.get('app.torrentsPerPage')).populate('category').sort('_id').exec((err, torrents) => {
-                if (err) {
-                    next(err);
-                }
-                callback(null, torrents);
-            });
+            }).exec().catch(callback);
+            category.torrentCount = count;
+            category.save();
+            callback(null);
+        } else {
+            callback(null);
         }
-    ], (err, torrents) => {
+    }, err => {
         if (err) {
             next(err);
         }
         res.json({
-            torrents
+            categories
         });
     });
 });
 
-router.get('/torrent/:infoHash', (req, res, next) => {
-    Torrent.findOne({
+router.get('/category/:slug', async (req, res, next) => {
+    const category = await Category.findOne({
+        slug: req.params.slug
+    }).exec().catch(next);
+
+    const torrents = await Torrent.find({
+        category: category._id
+    }).limit(config.get('app.torrentsPerPage')).populate('category').sort('_id').exec().catch(next);
+
+    res.json({
+        torrents
+    });
+});
+
+router.get('/torrent/:infoHash', async (req, res, next) => {
+    const torrent = await Torrent.findOne({
         infoHash: req.params.infoHash
-    }).populate('category').exec((err, torrent) => {
-        if (err) {
-            next(err);
-        }
-        res.json('torrent', {
-            torrent
-        });
+    }).populate('category').exec().catch(next);
+
+    res.json({
+        torrent
     });
 });
 
-router.get('/search', (req, res, next) => {
+router.get('/search', async (req, res, next) => {
     const limit = req.query.limit || config.get('app.torrentsPerPage');
     const sorting = (req.query.sort || config.get('app.defaultSearchSorting')).toLowerCase();
     const order = (req.query.order || config.get('app.defaultSearchOrder')).toLowerCase();
@@ -128,54 +100,33 @@ router.get('/search', (req, res, next) => {
         }
     };
     const search = {};
-    async.waterfall([
-        function(callback) {
-            if (req.query.category) {
-                Category.findOne({
-                    slug: req.query.category
-                }).exec((err, category) => {
-                    if (err) {
-                        callback(err);
-                    }
-                    if (category) {
-                        callback(null, category);
-                    }
-                });
-            } else {
-                callback(null, null);
-            }
-        }, (category, callback) => {
-            if (req.query.q) {
-                if (category === null) {
-                    search.$text = {
-                        $search: req.query.q
-                    };
-                } else {
-                    search.$text = {
-                        $search: req.query.q
-                    };
-                    search.category = category._id;
-                }
-            }
-            sort[((sorting === 'seeders' || sorting === 'leechers') ? 'swarm.' : '') + sorting] = (order === 'asc' ? 1 : -1);
-            Torrent.find(search, {
-                score: {
-                    $meta: 'textScore'
-                }
-            }).limit(limit).sort(sort).populate('category').exec((err, torrents) => {
-                if (err) {
-                    next(err);
-                }
-                callback(null, torrents);
-            });
+    let category = null;
+    if (req.query.category) {
+        category = await Category.findOne({
+            slug: req.query.category
+        }).exec().catch(next);
+    }
+    if (req.query.q) {
+        if (category === null) {
+            search.$text = {
+                $search: req.query.q
+            };
+        } else {
+            search.$text = {
+                $search: req.query.q
+            };
+            search.category = category._id;
         }
-    ], (err, torrents) => {
-        if (err) {
-            next(err);
+    }
+    sort[((sorting === 'seeders' || sorting === 'leechers') ? 'swarm.' : '') + sorting] = (order === 'asc' ? 1 : -1);
+    const torrents = await Torrent.find(search, {
+        score: {
+            $meta: 'textScore'
         }
-        res.json({
-            torrents
-        });
+    }).limit(limit).sort(sort).populate('category').exec().catch(next);
+
+    res.json({
+        torrents
     });
 });
 

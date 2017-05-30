@@ -83,7 +83,7 @@ if (!config.get('session.secret') || config.get('session.secret') === '') {
 }
 
 app.use(session({
-    secret: config.get('session:secret'),
+    secret: config.get('session.secret'),
     name: 'session',
     store: new MongoStore({
         mongooseConnection: mongoose.connection
