@@ -18,7 +18,10 @@ import {
 } from './app/log';
 import {
     api,
-    core
+    category,
+    core,
+    search,
+    torrent
 } from './app/routes';
 
 // Stops promises being silent
@@ -105,7 +108,12 @@ app.use((req, res, next) => {
 });
 
 app.use('/', core);
+
 app.use('/api', api);
+app.use('/api/category', category);
+app.use('/api/search', search);
+app.use('/api/torrent', torrent);
+
 app.use('/healthcheck', (req, res) => {
     res.status(200).json({
         uptime: process.uptime()

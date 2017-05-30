@@ -1,4 +1,5 @@
 import async from 'async';
+import HTTPError from 'http-errors';
 import {Router} from 'express';
 
 import config from '../config';
@@ -24,14 +25,10 @@ router.use((req, res, next) => {
         if (req.query.apiKey === config.get('api.key')) {
             next();
         } else {
-            res.json({
-                message: 'Invalid API key',
-                status: 401
-            });
+            return next(new HTTPError.Forbidden(`Invalid API key.`));
         }
-    } else {
-        next();
     }
+    return next();
 });
 
 router.get('/stats', (req, res) => {
@@ -63,70 +60,6 @@ router.get('/browse', async (req, res, next) => {
         res.json({
             categories
         });
-    });
-});
-
-router.get('/category/:slug', async (req, res, next) => {
-    const category = await Category.findOne({
-        slug: req.params.slug
-    }).exec().catch(next);
-
-    const torrents = await Torrent.find({
-        category: category._id
-    }).limit(config.get('app.torrentsPerPage')).populate('category').sort('_id').exec().catch(next);
-
-    res.json({
-        torrents
-    });
-});
-
-router.get('/torrent/:infoHash', async (req, res, next) => {
-    const torrent = await Torrent.findOne({
-        infoHash: req.params.infoHash
-    }).populate('category').exec().catch(next);
-
-    res.json({
-        torrent
-    });
-});
-
-router.get('/search', async (req, res, next) => {
-    const limit = req.query.limit || config.get('app.torrentsPerPage');
-    const sorting = (req.query.sort || config.get('app.defaultSearchSorting')).toLowerCase();
-    const order = (req.query.order || config.get('app.defaultSearchOrder')).toLowerCase();
-    const sort = {
-        score: {
-            $meta: 'textScore'
-        }
-    };
-    const search = {};
-    let category = null;
-    if (req.query.category) {
-        category = await Category.findOne({
-            slug: req.query.category
-        }).exec().catch(next);
-    }
-    if (req.query.q) {
-        if (category === null) {
-            search.$text = {
-                $search: req.query.q
-            };
-        } else {
-            search.$text = {
-                $search: req.query.q
-            };
-            search.category = category._id;
-        }
-    }
-    sort[((sorting === 'seeders' || sorting === 'leechers') ? 'swarm.' : '') + sorting] = (order === 'asc' ? 1 : -1);
-    const torrents = await Torrent.find(search, {
-        score: {
-            $meta: 'textScore'
-        }
-    }).limit(limit).sort(sort).populate('category').exec().catch(next);
-
-    res.json({
-        torrents
     });
 });
 

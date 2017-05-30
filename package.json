@@ -4,9 +4,9 @@
     "description": "",
     "main": "index.js",
     "scripts": {
-        "start": "babel-node index.js | bunyan",
-        "start:development": "nodemon index.js --exec babel-node | bunyan",
-        "start:background:imports": "babel-node background/imports.js | bunyan",
+        "start": "cross-env NODE_ENV=production babel-node index.js | bunyan",
+        "start:development": "cross-env NODE_ENV=development nodemon index.js --exec babel-node | bunyan",
+        "start:background:imports": "cross-env NODE_ENV=production babel-node background/imports.js | bunyan",
         "test": "xo"
     },
     "repository": {
@@ -37,6 +37,7 @@
         "express": "^4.12.4",
         "express-api-error-handler": "^1.1.0",
         "express-session": "^1.11.3",
+        "http-errors": "^1.6.1",
         "line-by-line": "^0.1.4",
         "loud-rejection": "^1.6.0",
         "method-override": "^2.3.3",
