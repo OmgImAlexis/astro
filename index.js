@@ -1,7 +1,6 @@
 'use strict';
 
 import path from 'path';
-import http from 'http';
 import express from 'express';
 import cookieParser from 'cookie-parser';
 import bodyParser from 'body-parser';
@@ -9,6 +8,8 @@ import methodOverride from 'method-override';
 import session from 'express-session';
 import mongoose from 'mongoose';
 import compression from 'compression';
+import loudRejection from 'loud-rejection';
+import {errorHandler, notFoundHandler} from 'express-api-error-handler';
 
 import config from './app/config';
 import {
@@ -19,6 +20,9 @@ import {
     api,
     core
 } from './app/routes';
+
+// Stops promises being silent
+loudRejection();
 
 const MongoStore = require('connect-mongo')(session);
 
@@ -102,15 +106,24 @@ app.use((req, res, next) => {
 
 app.use('/', core);
 app.use('/api', api);
-
-app.use((req, res) => {
-    res.status(404).send('Either we lost this page or you clicked an incorrect link!');
-    log.warn({
-        status: '404',
-        pageUrl: req.originalUrl
+app.use('/healthcheck', (req, res) => {
+    res.status(200).json({
+        uptime: process.uptime()
     });
 });
 
-http.createServer(app).listen(config.get('app.port'), '0.0.0.0', () => {
-    log.info('Running on port ' + config.get('app.port'));
-});
+app.use(errorHandler({
+    log: ({err, req, body}) => {
+        log.error(err, `${body.status} ${req.method} ${req.url}`);
+    },
+    // This hides 5XX errors in production to prevent info leaking
+    hideProdErrors: true
+}));
+
+app.use(notFoundHandler({
+    log: ({req}) => {
+        log.info(`404 ${req.method} ${req.url}`);
+    }
+}));
+
+app.listen(config.get('app.port'), () => log.info(`Bitcannon is running on port ${config.get('app.port')}`));
