@@ -127,7 +127,7 @@ if (cluster.isMaster) {
         }
          // For single core processors we don't fork, we just load all of the providers
          // and let Node do its thing.
-        if (!config.get(`providers:${provider}:enabled`)) {
+        if (!config.get(`providers.${provider}.enabled`)) {
             continue;
         }
         if (numCPUs === 1) {
