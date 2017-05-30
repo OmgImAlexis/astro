@@ -13,7 +13,7 @@ const userAgent = 'BitCannon (https://github.com/bitcannon-org/bitcannon-web)';
  * @description Returns the http or https module depending on url
  * @param {string} url - The url to evaluate
  */
-const protocol = function(url) {
+const protocol = url => {
     const err = new Error('Invalid URI');
     if (typeof (url) !== 'string') {
         throw err;
