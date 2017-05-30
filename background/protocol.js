@@ -6,24 +6,26 @@
 import http from 'http';
 import https from 'https';
 
-export const userAgent = 'BitCannon (https://github.com/bitcannon-org/bitcannon-web)';
+const userAgent = 'BitCannon (https://github.com/bitcannon-org/bitcannon-web)';
 
 /**
  * @func protocol
  * @description Returns the http or https module depending on url
  * @param {string} url - The url to evaluate
  */
-export const protocol = function(url) {
-  const err = new Error('Invalid URI');
-  if (typeof (url) !== 'string') {
+const protocol = function(url) {
+    const err = new Error('Invalid URI');
+    if (typeof (url) !== 'string') {
+        throw err;
+    }
+
+    if (url.startsWith('https://')) {
+        return https;
+    } else if (url.startsWith('http://')) {
+        return http;
+    }
+
     throw err;
-  }
-
-  if (url.startsWith('https://')) {
-    return https;
-  } else if (url.startsWith('http://')) {
-    return http;
-  }
-
-  throw err;
 };
+
+export {userAgent, protocol};
