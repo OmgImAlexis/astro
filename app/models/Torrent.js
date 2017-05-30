@@ -52,12 +52,12 @@ Torrent.pre('save', function(next) {
             }
         }).exec((err, updatedDoc) => {
             if (err) {
-                console.log(err);
+                next(err);
             }
             if (updatedDoc) {
                 next();
             } else {
-                console.log(`We couldn't update the torrent count`);
+                next(`We couldn't update the torrent count`);
             }
         });
     }

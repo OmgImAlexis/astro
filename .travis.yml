@@ -1,0 +1,13 @@
+language: node_js
+services: mongodb
+node_js:
+  - "4"
+  - "5"
+  - "6"
+  - "7"
+cache:
+  yarn: true
+  directories:
+    - node_modules
+after_success:
+  - "./node_modules/.bin/nyc report --reporter=text-lcov | ./node_modules/.bin/coveralls"
