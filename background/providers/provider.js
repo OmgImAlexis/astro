@@ -138,19 +138,22 @@ class Provider {
     }
 
    /**
-    * Checks if a torrent should be added to the database
-    * @param {string} category - A torrents category
+    * Checks if a torrent should be added to the database based on the category
+    * @param {string} category - A category name
     */
     static shouldAddTorrent(category) {
-        if (config.get('torrents.whitelist.enabled')) {
-            for (let i = 0; i < config.get('torrents.whitelist.categories'); i++) {
-                if (category.toUpperCase() === config.get('torrents.whitelist.categories')[i]) {
+        const whiteList = config.get('torrents.whitelist');
+        const blackList = config.get('torrents.blacklist');
+
+        if (whiteList.enabled) {
+            for (let i = 0; i < whiteList.categories; i++) {
+                if (category.toUpperCase() === whiteList.categories[i]) {
                     return true;
                 }
             }
-        } else if (config.get('torrents:blacklist:enabled')) {
-            for (let j = 0; j < config.get('torrents.blacklist.enabled'); j++) {
-                if (category.toUpperCase() === config.get('torrents.blacklist.categories')[j]) {
+        } else if (blackList.enabled) {
+            for (let j = 0; j < blackList.categories; j++) {
+                if (category.toUpperCase() === blackList.categories[j]) {
                     return false;
                 }
             }
@@ -163,17 +166,17 @@ class Provider {
     * @todo If we have a .torrent file and don't have a magnet link / infohash we should store the .torrent file
     * either in a directory or in the database. ({@link https://github.com/bitcannon-org/bitcannon-web/issues/19|#19})
     */
-    static addTorrent({title, aliases, size, details, swarm, lastmod, imported, infoHash}) {
+    static addTorrent({title, alias, size, details, swarm, lastmod, imported, infoHash}) {
         // Validate Data
         if (typeof (title) !== 'string' || typeof (infoHash) !== 'string') {
             // Bail out because we don't have a title or infoHash
             this.log.error('Skipping torrent due to a missing title or infoHash');
             return;
         }
-        if (!aliases) {
-            aliases = 'Other'; // Category isn't defined so set it to 'Other'
+        if (!alias) {
+            alias = 'Unknown'; // Category isn't defined so set it to 'Unknown'
         }
-        if (!Provider.shouldAddTorrent(aliases)) {
+        if (!Provider.shouldAddTorrent(alias)) {
             this.log.info('Skipping torrent due to being in ' + ((config.get('torrents.whitelist.enabled')) ? 'whitelist' : 'blacklist'));
             return;
         }

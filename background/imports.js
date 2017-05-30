@@ -23,15 +23,12 @@ const providers = [];
 const workers = [];
 
 const loadProvider = provider => {
-    if (provider) {
-        this.provider = provider;
-    }
-    log.info(`Loading provider ${this.provider}`);
+    log.info(`Loading provider ${provider}`);
     try {
-        require(`${__dirname}/providers/${this.provider}`);
+        require(`${__dirname}/providers/${provider}`);
     } catch (err) {
         log.info(outdent`
-             An error occurred loading the ${this.provider} provider.
+             An error occurred loading the ${provider} provider.
              The error is as follows: ${err.message || ''}
          `);
         log.trace(err);
@@ -150,7 +147,7 @@ if (cluster.isMaster) {
 } else {
     log.info('Worker ' + process.pid + ' has started.');
 
-     // Receive messages from the master process.
+    // Receive messages from the master process.
     process.on('message', msg => {
         if (msg.provider) {
             loadProvider(msg.provider);

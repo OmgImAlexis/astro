@@ -262,8 +262,8 @@ class RSS extends Provider {
                                 size,
                                 details,
                                 swarm,
-                                lastmo: Date.now(),
-                                importe: Date.now(),
+                                lastmod: Date.now(),
+                                imported: Date.now(),
                                 infoHash: torrent._id
                             });
                         }
@@ -289,8 +289,8 @@ class RSS extends Provider {
                                 size,
                                 details,
                                 swarm,
-                                lastmo: Date.now(),
-                                importe: Date.now(),
+                                lastmod: Date.now(),
+                                imported: Date.now(),
                                 infoHash: torrent._id
                             });
                         }
