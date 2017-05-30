@@ -1,18 +1,21 @@
-/**
- * @file a simple module to return either the http or https module
- * depending on the url provided
- */
+import http from 'http';
+import https from 'https';
 
-/**
- * @func protocol
- * @description Returns the http or https module depending on url
- * @param {string} url - The url to evaluate
- */
-module.exports = function(url) {
-    if (url.indexOf('https://') === 0) {
-        return require('https');
-    } else if (url.indexOf('http://') === 0) {
-        return require('http');
+const userAgent = 'BitCannon (https://github.com/bitcannon-org/bitcannon-web)';
+
+const protocol = url => {
+    const err = new Error('Invalid URI');
+    if (typeof (url) !== 'string') {
+        throw err;
     }
-    throw new Error('Invalid URI');
+
+    if (url.startsWith('https://')) {
+        return https;
+    } else if (url.startsWith('http://')) {
+        return http;
+    }
+
+    throw err;
 };
+
+export {userAgent, protocol};
