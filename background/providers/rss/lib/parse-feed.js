@@ -9,13 +9,11 @@ const getFeedType = feed => {
     //    <infoHash>...</infoHash>
     // </torrent>
     if ('torrent' in feed.rss.channel[0]) {
-        if (typeof feed.rss.channel[0].torrent[0].$.xmlns !== 'undefined') {
-            return {
-                torrents: feed.rss.channel[0].torrent,
-                items: ('item' in feed.rss.channel[0]) ? feed.rss.channel[0].item : feed.rss.channel[0].torrent,
-                namespace: ''
-            };
-        }
+        return {
+            torrents: feed.rss.channel[0].torrent,
+            items: ('item' in feed.rss.channel[0]) ? feed.rss.channel[0].item : feed.rss.channel[0].torrent,
+            namespace: ''
+        };
     }
 
     // <rss xmlns:torrent="http://xmlns.ezrss.it/0.1/">
@@ -66,6 +64,39 @@ class ParseFeed extends EventEmitter {
                         }
                     }
                 }
+                for (const prop in torrents[i]) {
+                    // Collapses single array items e.g:
+                    // title: ['mytitle'] -> title: 'mytitle'
+                    if (
+                        torrents[i][prop] instanceof Array &&
+                        torrents[i][prop].length === 1 &&
+                        !(torrents[i][prop][0] instanceof Object)
+                    ) {
+                        torrents[i][prop] = torrents[i][prop][0];
+                    } else if (
+                            torrents[i][prop] instanceof Array &&
+                            torrents[i][prop][0] instanceof Object &&
+                            Object.keys(torrents[i][prop][0]).length === 1
+                        ) {
+                        const k = Object.keys(torrents[i][prop][0])[0];
+                        torrents[i][prop] = torrents[i][prop][0][k];
+                    }
+                    // Convert String to Number
+                    switch (prop) {
+                        case 'seeds':
+                        case 'peers':
+                        case 'contentLength':
+                            torrents[i][prop] = Number(torrents[i][prop]);
+                            break;
+                        case 'enclosure':
+                            if ('length' in torrents[i][prop]) {
+                                torrents[i][prop].length = Number(torrents[i][prop].length);
+                            }
+                            break;
+                        default:
+                            continue;
+                    }
+                }
                 // Ocassionally there are RSS feeds that take the following format:
                 // <torrent>
                 //  ...
@@ -79,6 +110,7 @@ class ParseFeed extends EventEmitter {
                 this.emit('torrent',
                 (torrents[i] === items[i]) ? {torrent: torrents[i]} : {torrent: torrents[i], item: items[i]});
             }
+            this.emit('end');
         }).catch(err => {
             this.emit('error', err);
         });
