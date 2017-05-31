@@ -1,3 +1,4 @@
+import {EventEmitter} from 'events';
 import {promisifyAll} from 'bluebird';
 import xml2js from 'xml2js';
 import {generateAtomFeed} from '../tests/generate-test-data';
@@ -11,28 +12,31 @@ const torrentTags = [
     'peers'
 ];
 
-const parseFeed = feed => {
-    return new Promise((resolve, reject) => {
+class ParseFeed extends EventEmitter {
+    constructor(feed) {
+        super();
         parseStringAsync(feed).then(xml => {
             if ('rss' in xml === false) {
-                return reject(new Error('NotAnRSSFeed'));
+                return this.emit('error', new Error('NotAnRSSFeed'));
             }
 
-            const totalNumberOfItems = xml.rss.channel[0].item.length;
-
             xml.rss.channel[0].item.forEach(item => {
-                console.log(item);
+                this.emit('torrent', item);
             });
         }).catch(err => {
-            return reject(err);
+            return this.emit('error', err);
         });
-    });
-};
+    }
+}
 
 generateAtomFeed().then(f => {
-    parseFeed(f);
+    new ParseFeed(f).on('torrent', torrent => {
+        console.log(torrent);
+    }).on('error', err => {
+        throw err;
+    });
 }).catch(e => {
     throw new Error(e);
 });
 
-export default parseFeed;
+export default ParseFeed;
