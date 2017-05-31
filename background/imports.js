@@ -145,14 +145,14 @@ if (cluster.isMaster) {
         }
     });
 } else {
-    log.info('Worker ' + process.pid + ' has started.');
+    log.info(`Worker ${process.pid} has started.`);
 
     // Receive messages from the master process.
     process.on('message', msg => {
         if (msg.provider) {
             loadProvider(msg.provider);
         } else {
-            log.info('Worker ' + process.pid + ' received message from master.', msg);
+            log.info(`Worker ${process.pid} received message from master.`, msg);
         }
     });
 }

@@ -4,7 +4,6 @@
 
 'use strict';
 
-import outdent from 'outdent';
 import {MongoClient} from 'mongodb';
 
 import config from '../../app/config';
@@ -62,7 +61,7 @@ class Provider {
         connect((err, conn) => {
             if (err) {
                 this.log.warn('Cannot connect to mongodb, please check your config.json');
-                throw new Error();
+                throw new Error('Cannot connect to mongodb, please check your config.json');
             }
             db = conn;
             log.info('Connected correctly to server');
@@ -111,10 +110,9 @@ class Provider {
             default:
                 this.duration = Number(duration);
                 if (isNaN(this.duration)) {
-                    this.log.warn(outdent`
-                        Potentialy invalid duration for provider ${this.provider}.
-                        Falling back to one hour.
-                    `);
+                    this.log.debug(`${this.duration} is an invalid duration.`);
+                    this.log.warn(`Potentialy invalid duration for provider ${this.provider}.`);
+                    this.log.warn(`Falling back to one hour.`);
                     this.duration = 3600000;
                 }
         }
@@ -208,8 +206,8 @@ class Provider {
 
         connect((err, db) => {
             if (err) {
-                this.log.warn(err);
-                throw new Error();
+                log.warn(`Error connecting to db.`);
+                log.trace(err);
             }
             db.collection('torrents').insertOne({
                 title,
@@ -225,9 +223,10 @@ class Provider {
                 imported,
                 infoHash
             }, err => {
-                if (err) {
-                    this.log.error(`Error inserting torrent: ${err.message}`);
-                    this.log.trace(err);
+                // Duplicate insert === err.code 11000
+                if (err && err.name !== 'MongoError' && err.code !== 11000) {
+                    log.error(`Error inserting torrent: ${err.message}`);
+                    log.trace(err);
                 }
             });
         });
