@@ -12,6 +12,7 @@ import url from 'url';
 import {parseString} from 'xml2js';
 
 import config from '../../app/config';
+import {protocol} from '../protocol';
 import Provider from './provider';
 
 // eslint-disable-next-line one-var
@@ -222,7 +223,7 @@ class RSS extends Provider {
         };
 
         getProtocol = () => {
-            return require('../protocol')(getFeedURL());
+            return protocol(getFeedURL());
         };
 
         log = this.log;
@@ -237,6 +238,31 @@ class RSS extends Provider {
 
     run() {
         let feed = '';
+
+        const parseTorrent = () => {
+            parse(undefined, feed, getFeedURL(), (err, torrent) => {
+                if (err) {
+                    log.warn(`Error while parsing torrent.`);
+                    log.trace(err);
+                } else {
+                    end = process.hrtime(start);
+                    log.info(`elapsed time: ${end[0]} seconds and ${end[1]} nanoseonds.`);
+                    log.info(`Processing ${torrent.title}`);
+                    const {title, size, details, swarm} = torrent;
+                    Provider.addTorrent({
+                        title,
+                        alias: torrent.category,
+                        size,
+                        details,
+                        swarm,
+                        lastmod: Date.now(),
+                        imported: Date.now(),
+                        infoHash: torrent._id
+                    });
+                }
+            });
+        };
+
         getProtocol().get(getRequestOptions(), res => {
             if (res.headers['content-type'] === 'application/x-gzip' || res.headers['content-encoding'] === 'gzip') {
                 // Pipe the response into the gunzip to decompress
@@ -247,57 +273,16 @@ class RSS extends Provider {
                     feed += data.toString();
                 }).on('error', err => {
                     log.warn(err);
-                }).on('end', () => {
-                    parse(undefined, feed, getFeedURL(), (err, torrent) => {
-                        if (err) {
-                            log.trace(err);
-                        } else {
-                            end = process.hrtime(start);
-                            log.info(`elapsed time: ${end[0]} seconds and ${end[1]} nanoseonds.`);
-                            log.info(`Processing ${torrent.title}`);
-                            const {title, size, details, swarm} = torrent;
-                            Provider.addTorrent({
-                                title,
-                                alias: torrent.category,
-                                size,
-                                details,
-                                swarm,
-                                lastmod: Date.now(),
-                                imported: Date.now(),
-                                infoHash: torrent._id
-                            });
-                        }
-                    });
-                });
+                }).on('end', parseTorrent);
             } else {
                 res.on('data', chunk => {
                     res.setEncoding('utf8');
                     feed += chunk;
                 });
-                res.on('end', () => {
-                    parse(undefined, feed, getFeedURL(), (err, torrent) => {
-                        if (err) {
-                            log.trace(err);
-                        } else {
-                            end = process.hrtime(start);
-                            log.info(`elapsed time: ${end[0]} seconds and ${end[1]} nanoseonds.`);
-                            log.info(`Processing ${torrent.title}`);
-                            const {title, size, details, swarm} = torrent;
-                            Provider.addTorrent({
-                                title,
-                                alias: torrent.category,
-                                size,
-                                details,
-                                swarm,
-                                lastmod: Date.now(),
-                                imported: Date.now(),
-                                infoHash: torrent._id
-                            });
-                        }
-                    });
-                });
+                res.on('end', parseTorrent);
             }
         }).on('error', err => {
+            log.warn(`Error handling torrent.`);
             log.warn(err);
         });
     }

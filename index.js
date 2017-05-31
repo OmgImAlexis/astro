@@ -21,6 +21,7 @@ import {
     category,
     core,
     search,
+    settings,
     torrent
 } from './app/routes';
 
@@ -112,6 +113,7 @@ app.use('/', core);
 app.use('/api', api);
 app.use('/api/category', category);
 app.use('/api/search', search);
+app.use('/api/settings', settings);
 app.use('/api/torrent', torrent);
 
 app.use('/healthcheck', (req, res) => {
