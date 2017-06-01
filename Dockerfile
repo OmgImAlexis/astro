@@ -9,6 +9,7 @@ WORKDIR /tmp
 RUN apk add --no-cache \
   python3\
   py-setuptools\
+  py-dateutil\
   curl && \
   curl -O -L $GUESSIT && \
   tar zxf 2.1.2.tar.gz -C /tmp && \
