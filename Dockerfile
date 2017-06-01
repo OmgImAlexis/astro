@@ -14,7 +14,8 @@ RUN apk add --no-cache \
   curl -O -L $GUESSIT && \
   tar zxf 2.1.2.tar.gz -C /tmp && \
   cd /tmp/guessit-$GUESSIT_VERSION && \
-  python3 setup.py install --optimize=1
+  python3 setup.py install --optimize=1 && \
+  rm -rf /tmp/*guessit* /tmp/*.tar.gz
 
 RUN mkdir /app
 
