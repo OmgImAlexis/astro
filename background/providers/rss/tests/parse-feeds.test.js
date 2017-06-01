@@ -2,7 +2,7 @@
 
 import {test} from 'ava';
 
-import {default as ParseFeed} from '../lib/parse-feed';
+import ParseFeed from '../lib/parse-feed';
 
 import {
     generateAtomFeed,
@@ -10,7 +10,7 @@ import {
     generateTorrentFeed,
     generateMixedTorrentFeed
 } from './generate-test-data';
-import {default as torrents} from './testdata';
+import torrents from './testdata';
 
 const feeds = [generateAtomFeed, generateTorrentNamespacedFeed, generateTorrentFeed, generateMixedTorrentFeed];
 

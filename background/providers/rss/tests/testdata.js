@@ -169,4 +169,4 @@ const torrents = [
     }
 ];
 
-export {torrents as default};
+export default torrents;

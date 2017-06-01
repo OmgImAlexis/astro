@@ -1,8 +1,8 @@
 import {EventEmitter} from 'events';
-import {promisifyAll} from 'bluebird';
-import xml2js from 'xml2js';
+import {promisify} from 'util';
+import {parseString} from 'xml2js';
 
-const {parseStringAsync} = promisifyAll(xml2js);
+const parseStringAsync = promisify(parseString);
 
 const getFeedType = feed => {
     // <torrent xmlns="http://xmlns.ezrss.it/0.1/">
