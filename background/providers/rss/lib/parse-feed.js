@@ -42,7 +42,7 @@ const getFeedType = feed => {
     };
 };
 
-class ParseFeed extends EventEmitter {
+class FeedParser extends EventEmitter {
     constructor(feed) {
         super();
         parseStringAsync(feed).then(xml => {
@@ -117,4 +117,4 @@ class ParseFeed extends EventEmitter {
     }
 }
 
-export default ParseFeed;
+export default FeedParser;

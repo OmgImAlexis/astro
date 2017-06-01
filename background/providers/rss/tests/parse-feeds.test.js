@@ -2,7 +2,7 @@
 
 import {test} from 'ava';
 
-import ParseFeed from '../lib/parse-feed';
+import FeedParser from '../lib/parse-feed';
 
 import {
     generateAtomFeed,
@@ -18,7 +18,7 @@ feeds.forEach(fn => {
     fn().then(feed => {
         test.cb(`The ${fn.name} feed should have ${torrents.length} elements`, t => {
             let _count = 0;
-            new ParseFeed(feed).on('torrent', () => {
+            new FeedParser(feed).on('torrent', () => {
                 _count++;
             }).on('end', () => {
                 t.is(_count, torrents.length);
@@ -31,7 +31,7 @@ feeds.forEach(fn => {
 test.cb('The generateMixedTorrentFeed feed should contain "item" objects', t => {
     generateMixedTorrentFeed().then(feed => {
         let _count = 0;
-        new ParseFeed(feed).on('torrent', torrent => {
+        new FeedParser(feed).on('torrent', torrent => {
             if ('item' in torrent) {
                 _count++;
             }
@@ -61,7 +61,7 @@ torrentTags.forEach(tag => {
         fn().then(feed => {
             let _count = 0;
             test.cb(`The ${fn.name} feeds "${tag}" tags should be the same as torrents`, t => {
-                new ParseFeed(feed).on('torrent', torrent => {
+                new FeedParser(feed).on('torrent', torrent => {
                     if (torrent.torrent[tag] instanceof Object) {
                         for (const prop in torrent.torrent[tag]) {
                             t.is(torrent.torrent[tag][prop], torrents[_count][tag][prop]);
