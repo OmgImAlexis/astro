@@ -169,11 +169,14 @@ function parse(err, body, feedURL, callback) {
             }
             if (typeof (struct.title) !== 'string') {
                 log.info('Skipping torrent due to missing title');
-            } else if (torrent[i].enclosure[0].$.url.substring((torrent[i].enclosure[0].$.url.length - 8)) === '.torrent' || torrent[i].enclosure[0].$.url.substring(0, 7) === 'magnet:' || torrent[i].enclosure[0].$.type === 'application/x-bittorrent') {
+            }
+            const torrentLink = torrent[i].enclosure[0].$.url;
+            const torrentContentType = torrent[i].enclosure[0].$.type;
+            if (torrentLink.endsWith('.torrent') || torrentLink.startsWith('magnet:') || torrentContentType === 'application/x-bittorrent') {
                 // Always pass a copy of struct to getTorrentInfo, not a reference.
                 // Using a reference (which is the default behaviour) causes values
                 // to change within the function because of the loop.
-                getTorrentInfo(String(torrent[i].enclosure[0].$.url), JSON.parse(JSON.stringify(struct)), callback);
+                getTorrentInfo(String(torrentLink), JSON.parse(JSON.stringify(struct)), callback);
             }
             numberOfItemsParsed++;
             if (numberOfItemsParsed === totalNumberOfItems) {
