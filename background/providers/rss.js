@@ -52,10 +52,6 @@ function parse(err, body, feedURL, callback) {
         let torrent;
         let item;
 
-        if (err) {
-            return callback(err);
-        }
-
         if ('rss' in result) {
             rssFeed = true;
         }
