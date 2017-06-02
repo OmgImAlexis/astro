@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /**
  * @file A simple console logger that outputs to stdout
  */

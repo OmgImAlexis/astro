@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /**
  * @file A logger that outputs using {@link https://github.com/trentm/node-bunyan|Bunyan}
  */
@@ -6,7 +7,7 @@ import path from 'path';
 import bunyan from 'bunyan';
 
 import config from '../../app/config';
-import Logger from './logger';
+import Logger from './logger'; // eslint-disable-line import/default
 
 // Private Methods
 const formatBunyanInfoLog = Symbol('bunyan-log-format');

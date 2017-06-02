@@ -52,3 +52,5 @@ import.txt
 
 # Log files
 *.log
+
+.nyc_output

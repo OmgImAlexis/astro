@@ -5222,6 +5222,12 @@ xdg-basedir@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/xdg-basedir/-/xdg-basedir-3.0.0.tgz#496b2cc109eca8dbacfe2dc72b603c17c5870ad4"
 
+xml2js-es6-promise@^1.1.1:
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/xml2js-es6-promise/-/xml2js-es6-promise-1.1.1.tgz#cd5688d9d6344e67c908f71e5b0a3d88d128e9a2"
+  dependencies:
+    xml2js "^0.4.16"
+
 xml2js@^0.4.16:
   version "0.4.17"
   resolved "https://registry.yarnpkg.com/xml2js/-/xml2js-0.4.17.tgz#17be93eaae3f3b779359c795b419705a8817e868"

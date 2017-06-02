@@ -1,3 +1,5 @@
-$(document).ready(function(){
-    $("[datetime]").timeago();
+/* global $, document */
+
+$(document).ready(() => {
+    $('[datetime]').timeago();
 });

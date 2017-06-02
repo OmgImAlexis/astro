@@ -36,7 +36,7 @@ function parse(err, body, feedURL, callback) {
 
     let numberOfItemsParsed = 0;
 
-    parseString(body, (err, result) => {
+    parseString(body, (err, result) => { // eslint-disable-line complexity
         const totalNumberOfItems = result.rss.channel[0].item.length;
         const torrentTags = [
             'contentLength',

@@ -15,7 +15,7 @@ import {MongoClient} from 'mongodb';
 
 import config from '../app/config';
 import cleanUp from '../cleanup';
-import Log from './logging';
+import Log from './logging'; // eslint-disable-line import/default
 
 // Stops promises being silent
 loudRejection();

@@ -1,8 +1,5 @@
 import {EventEmitter} from 'events';
-import {promisify} from 'util';
-import {parseString} from 'xml2js';
-
-const parseStringAsync = promisify(parseString);
+import parseString from 'xml2js-es6-promise';
 
 const getFeedType = feed => {
     // <torrent xmlns="http://xmlns.ezrss.it/0.1/">
@@ -45,7 +42,7 @@ const getFeedType = feed => {
 class FeedParser extends EventEmitter {
     constructor(feed) {
         super();
-        parseStringAsync(feed).then(xml => {
+        parseString(feed).then(xml => {
             if ('rss' in xml === false || 'channel' in xml.rss === false) {
                 this.emit('error', new Error('NotAnRSSFeed'));
             }
