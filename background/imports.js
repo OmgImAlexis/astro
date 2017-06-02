@@ -10,10 +10,18 @@ import cluster from 'cluster';
 import {cpus} from 'os';
 
 import outdent from 'outdent';
+import loudRejection from 'loud-rejection';
 import {MongoClient} from 'mongodb';
 
 import config from '../app/config';
+import cleanUp from '../cleanup';
 import Log from './logging';
+
+// Stops promises being silent
+loudRejection();
+
+// Handles throw errors and logs them
+cleanUp();
 
 const numCPUs = cpus().length;
 
@@ -50,7 +58,6 @@ if (cluster.isMaster) {
     }
 
     if (config.get('torrents.whitelist.enabled') && config.get('torrents.blacklist.enabled')) {
-        log.error('You cannot use the whitelist and the blacklist at the same time!');
         throw new Error('You cannot use the whitelist and the blacklist at the same time!');
     }
 
@@ -59,13 +66,11 @@ if (cluster.isMaster) {
         const uri = `mongodb://${mongoHost}:${config.get('database.mongodb.port')}/${config.get('database.mongodb.collection')}`;
         MongoClient.connect(uri, (err, db) => {
             if (err) {
-                log.warn('Cannot connect to mongodb, please check your config.json');
                 throw new Error('Cannot connect to mongodb, please check your config.json');
             }
             db.close();
         });
     } else {
-        log.warn('No database is enabled, please check your config.json');
         throw new Error('No database is enabled, please check your config.json');
     }
 
@@ -135,11 +140,11 @@ if (cluster.isMaster) {
     }
     cluster.on('exit', (worker, code, signal) => {
         if (signal) {
-            log.info(`worker was killed by signal: ${signal}`);
+            log.info(`Worker was killed by signal: ${signal}`);
         } else if (code !== 0) {
-            log.info(`worker exited with error code: ${code}`);
+            log.info(`Worker exited with error code: ${code}`);
         } else if (worker.exitedAfterDisconnect !== true) {
-            log.info('worker success!');
+            log.info('Worker success!');
             workers[worker.id - 1] = undefined;
             newThread();
         }

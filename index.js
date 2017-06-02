@@ -12,6 +12,7 @@ import loudRejection from 'loud-rejection';
 import {errorHandler, notFoundHandler} from 'express-api-error-handler';
 
 import config from './app/config';
+import cleanUp from './cleanup';
 import {
     generalLogger as log,
     mongooseLogger
@@ -28,6 +29,9 @@ import {
 // Stops promises being silent
 loudRejection();
 
+// Handles throw errors and logs them
+cleanUp();
+
 const MongoStore = require('connect-mongo')(session);
 
 mongoose.Promise = Promise;
@@ -38,9 +42,7 @@ const uri = 'mongodb://' + mongoHost + ':' + config.get('database.mongodb.port')
 if (config.get('database.mongodb.enabled')) {
     mongoose.connect(uri, err => {
         if (err) {
-            log.error(uri);
-            log.error('Cannot connect to mongodb, please check your config.json');
-            process.exit(1);
+            throw new Error('Cannot connect to mongodb, please check your config.json');
         }
     });
     if (process.env.NODE_ENV !== 'production') {
@@ -57,8 +59,7 @@ if (config.get('database.mongodb.enabled')) {
         });
     }
 } else {
-    log.error('No database is enabled, please check your config.json');
-    process.exit(1);
+    throw new Error('No database is enabled, please check your config.json');
 }
 
 const app = express();
