@@ -9,7 +9,7 @@
 
 import zlib from 'zlib';
 import url from 'url';
-import {parseString} from 'xml2js';
+import parseString from 'xml2js-es6-promise';
 
 import config from '../../app/config';
 import {protocol} from '../protocol';
