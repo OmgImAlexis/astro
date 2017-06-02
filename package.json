@@ -7,7 +7,7 @@
         "start": "cross-env NODE_ENV=production babel-node index.js | bunyan",
         "start:development": "cross-env NODE_ENV=development nodemon index.js --exec babel-node | bunyan",
         "start:background:imports": "cross-env NODE_ENV=production babel-node background/imports.js | bunyan",
-        "test": "xo && ava"
+        "test": "xo && nyc ava"
     },
     "engines": {
         "node": ">=4.0.0"
@@ -47,6 +47,7 @@
         "method-override": "^2.3.3",
         "mongodb": "^2.1.18",
         "mongoose": "^4.5.0",
+        "nyc": "^11.0.1",
         "outdent": "^0.3.0",
         "parse-torrent": "^5.7.3",
         "pug": "^2.0.0-rc.1",
@@ -93,6 +94,12 @@
     "ava": {
         "require": [
             "babel-core/register"
+        ]
+    },
+    "nyc": {
+        "reporter": [
+            "lcov",
+            "text"
         ]
     }
 }
