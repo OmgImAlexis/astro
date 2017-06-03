@@ -44,4 +44,4 @@ export default function getTorrentInfo(url = '', struct = {
             `);
         return cb(err, parsedTorrent);
     });
-};
+}
