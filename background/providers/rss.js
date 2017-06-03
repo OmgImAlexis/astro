@@ -14,10 +14,11 @@ import parseString from 'xml2js-es6-promise';
 import {generalLogger as log} from '../../app/log';
 import config from '../../app/config';
 import {protocol} from '../protocol';
+import getTorrentInfo from '../get-torrent-info';
 import Provider from './provider';
 
 // eslint-disable-next-line one-var
-let start, end, getProtocol, getCategory, getRequestOptions, getFeedURL, getTorrentInfo;
+let start, end, getProtocol, getCategory, getRequestOptions, getFeedURL;
 
 const userAgent = 'BitCannon (https://github.com/bitcannon-org/bitcannon-web)';
 
@@ -226,7 +227,6 @@ class RSS extends Provider {
             return protocol(getFeedURL());
         };
 
-        getTorrentInfo = require('../get-torrent-info');
         start = this.start;
         end = this.end;
     }
