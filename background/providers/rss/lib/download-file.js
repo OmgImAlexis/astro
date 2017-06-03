@@ -56,7 +56,7 @@ const downloadFile = url => {
                     res.setEncoding('utf8');
                     _file += chunk;
                 });
-                res.end(() => {
+                res.on('end', (() => {
                     return resolve(_file);
                 });
             }
