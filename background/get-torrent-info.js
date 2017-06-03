@@ -4,6 +4,7 @@
  */
 
 import outdent from 'outdent';
+import {generalLogger as log} from '../app/log';
 
 const {promisifyAll} = require('bluebird');
 const parseTorrent = promisifyAll(require('parse-torrent'));
@@ -12,12 +13,12 @@ const parseTorrent = promisifyAll(require('parse-torrent'));
  * @func getTorrentInfo
  * @description Parses torrent metadata
  */
-module.exports = function(log = console) {
-    return function(url = '', struct = {
+export default () => {
+    return (url = '', struct = {
         _id: String(),
         size: Number(),
         swarm: {seeders: 0, leechers: 0}
-    }, cb = () => {}) {
+    }, cb = () => {}) => {
         if (url.indexOf('http') !== 0 && url.indexOf('magnet:') !== 0) {
             return cb(new Error('Invalid URL'), struct);
         }

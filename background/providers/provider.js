@@ -7,9 +7,8 @@
 import {MongoClient} from 'mongodb';
 
 import config from '../../app/config';
-import Log from '../logging'; // eslint-disable-line import/default
+import {generalLogger as log} from '../../app/log'; // eslint-disable-line import/default
 
-const log = new Log('provider');
 const uri = `mongodb://${config.get('database.mongodb.host')}:${config.get('database.mongodb.port')}/${config.get('database.mongodb.collection')}`;
 let db;
 
@@ -46,7 +45,6 @@ class Provider {
      */
     constructor(provider) {
         this.provider = provider;
-        this.log = new Log(`imports:${provider}`);
 
         this.setDuration();
 
@@ -60,7 +58,7 @@ class Provider {
         }
         connect((err, conn) => {
             if (err) {
-                this.log.warn('Cannot connect to mongodb, please check your config.json');
+                log.warn('Cannot connect to mongodb, please check your config.json');
                 throw new Error('Cannot connect to mongodb, please check your config.json');
             }
             db = conn;
@@ -110,9 +108,9 @@ class Provider {
             default:
                 this.duration = Number(duration);
                 if (isNaN(this.duration)) {
-                    this.log.debug(`${this.duration} is an invalid duration.`);
-                    this.log.warn(`Potentialy invalid duration for provider ${this.provider}.`);
-                    this.log.warn(`Falling back to one hour.`);
+                    log.debug(`${this.duration} is an invalid duration.`);
+                    log.warn(`Potentialy invalid duration for provider ${this.provider}.`);
+                    log.warn(`Falling back to one hour.`);
                     this.duration = 3600000;
                 }
         }
@@ -168,14 +166,14 @@ class Provider {
         // Validate Data
         if (typeof (title) !== 'string' || typeof (infoHash) !== 'string') {
             // Bail out because we don't have a title or infoHash
-            this.log.error('Skipping torrent due to a missing title or infoHash');
+            log.error('Skipping torrent due to a missing title or infoHash');
             return;
         }
         if (!alias) {
             alias = 'Unknown'; // Category isn't defined so set it to 'Unknown'
         }
         if (!Provider.shouldAddTorrent(alias)) {
-            this.log.info('Skipping torrent due to being in ' + ((config.get('torrents.whitelist.enabled')) ? 'whitelist' : 'blacklist'));
+            log.info('Skipping torrent due to being in ' + ((config.get('torrents.whitelist.enabled')) ? 'whitelist' : 'blacklist'));
             return;
         }
         if (!lastmod) {

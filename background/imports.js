@@ -15,7 +15,7 @@ import {MongoClient} from 'mongodb';
 
 import config from '../app/config';
 import cleanUp from '../cleanup';
-import Log from './logging'; // eslint-disable-line import/default
+import {generalLogger as log} from '../app/log'; // eslint-disable-line import/default
 
 // Stops promises being silent
 loudRejection();
@@ -24,8 +24,6 @@ loudRejection();
 cleanUp();
 
 const numCPUs = cpus().length;
-
-const log = new Log('imports');
 
 const providers = [];
 const workers = [];
