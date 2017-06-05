@@ -1,5 +1,3 @@
-'use strict';
-
 const _ = '_';
 
 const slugify = text => {

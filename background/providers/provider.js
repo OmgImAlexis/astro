@@ -2,8 +2,6 @@
  * @file Provides a baseclass for archive providers
  */
 
-'use strict';
-
 import {MongoClient} from 'mongodb';
 
 import config from '../../app/config';

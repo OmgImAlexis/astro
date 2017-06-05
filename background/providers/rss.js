@@ -5,7 +5,6 @@
  * then don't do anything until the gunzip.on('end') event is triggered.
  * @todo Add tests - There's a lot of code here that could benefit from testing
  */
-'use strict';
 
 import zlib from 'zlib';
 import url from 'url';
