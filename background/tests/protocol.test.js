@@ -21,6 +21,6 @@ test('ftp://example.com should throw', t => {
     });
 });
 
-test(`userAgent should be 'BitCannon (https://github.com/bitcannon-org/bitcannon-web)'`, t => {
-    t.is(userAgent, 'BitCannon (https://github.com/bitcannon-org/bitcannon-web)');
+test(`userAgent should be 'Astro (https://github.com/bitcannon-org/astro)'`, t => {
+    t.is(userAgent, 'Astro (https://github.com/bitcannon-org/astro)');
 });

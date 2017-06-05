@@ -20,7 +20,7 @@ import Provider from './provider';
 // eslint-disable-next-line one-var
 let start, end, getProtocol, getCategory, getRequestOptions, getFeedURL;
 
-const userAgent = 'BitCannon (https://github.com/bitcannon-org/bitcannon-web)';
+const userAgent = 'Astro (https://github.com/bitcannon-org/astro)';
 
 /**
  * Function to parse an RSS feed
@@ -90,7 +90,7 @@ function parse(err, body, feedURL, callback) {
                 } catch (err) {
                     if (!rssFeed) {
                         log.info(`This isn't an RSS feed!`);
-                        log.info(`If you think this is a mistake please file an issue (https://github.com/bitcannon-org/bitcannon-web/issues)`);
+                        log.info(`If you think this is a mistake please file an issue (https://github.com/bitcannon-org/astro/issues)`);
                         return callback(err);
                     }
                 }
@@ -105,7 +105,7 @@ function parse(err, body, feedURL, callback) {
             item = result.rss.channel[0].item;
         } else {
             log.info(`Parsing plain RSS or Atom feed.`);
-            log.info(`BitCannon works best with feeds that use the torrent format but we'll try our best!`);
+            log.info(`Astro works best with feeds that use the torrent format but we'll try our best!`);
             item = result.rss.channel[0].item;
             torrent = item;
         }

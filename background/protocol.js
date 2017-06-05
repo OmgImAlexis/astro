@@ -1,7 +1,7 @@
 import http from 'http';
 import https from 'https';
 
-const userAgent = 'BitCannon (https://github.com/bitcannon-org/bitcannon-web)';
+const userAgent = 'Astro (https://github.com/bitcannon-org/astro)';
 
 const protocol = url => {
     const err = new Error('Invalid URI');

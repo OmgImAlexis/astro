@@ -1,5 +1,5 @@
 {
-    "name": "bitcannon-web",
+    "name": "astro",
     "version": "1.0.0",
     "description": "",
     "main": "index.js",
@@ -14,15 +14,15 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/bitcannon-org/bitcannon-web.git"
+        "url": "git+https://github.com/bitcannon-org/astro.git"
     },
     "keywords": [],
     "author": "",
     "license": "MIT",
     "bugs": {
-        "url": "https://github.com/bitcannon-org/bitcannon-web/issues"
+        "url": "https://github.com/bitcannon-org/astro/issues"
     },
-    "homepage": "http://bitcannon.io",
+    "homepage": "https://github.com/bitcannon-org/astro",
     "dependencies": {
         "app-module-path": "^1.0.4",
         "async": "^1.5.0",

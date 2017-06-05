@@ -4,7 +4,7 @@ import {name} from '../../package';
 const defaults = {
     app: {
         port: 3000,
-        title: 'BitCannon',
+        title: 'Astro',
         torrentsPerPage: 100,
         defaultSearchSorting: 'seeders',
         defaultSearchOrder: 'desc'
@@ -14,7 +14,7 @@ const defaults = {
             enabled: true,
             host: '127.0.0.1',
             port: 27017,
-            collection: 'bitcannon'
+            collection: 'astro'
         }
     },
     torrents: {

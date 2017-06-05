@@ -160,7 +160,7 @@ class Provider {
 
     /** Add a torrent to the database
     * @todo If we have a .torrent file and don't have a magnet link / infohash we should store the .torrent file
-    * either in a directory or in the database. ({@link https://github.com/bitcannon-org/bitcannon-web/issues/19|#19})
+    * either in a directory or in the database. ({@link https://github.com/bitcannon-org/astro/issues/19|#19})
     */
     static addTorrent({title, alias, size, details, swarm, lastmod, imported, infoHash}) {
         // Validate Data

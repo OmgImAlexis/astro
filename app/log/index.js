@@ -7,7 +7,7 @@ import {version} from '../../package';
 const {INFO, TRACE} = bunyan;
 
 const generalLogger = bunyan.createLogger({
-    name: 'Bitcannon',
+    name: 'Astro',
     version,
     streams: [
         {
@@ -21,7 +21,7 @@ const generalLogger = bunyan.createLogger({
 });
 
 const mongooseLogger = bunyan.createLogger({
-    name: 'Bitcannon',
+    name: 'Astro',
     src: false,
     serializers: {
         dbQuery: data => {

@@ -137,4 +137,4 @@ app.use(notFoundHandler({
     }
 }));
 
-app.listen(config.get('app.port'), () => log.info(`Bitcannon is running on port ${config.get('app.port')}`));
+app.listen(config.get('app.port'), () => log.info(`Astro is running on port ${config.get('app.port')}`));
