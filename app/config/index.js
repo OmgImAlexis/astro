@@ -48,7 +48,7 @@ const defaults = {
     },
     api: {
         keyNeeded: false,
-        key: null
+        key: crypto.randomBytes(32).toString('hex')
     },
     logs: {
         provider: 'default',
