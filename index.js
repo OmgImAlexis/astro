@@ -1,54 +1,73 @@
-// This fixes the need for ../../../ with long paths especially when we use things in the models dir.
-require('app-module-path').addPath(__dirname + '/app');
+import path from 'path';
+import express from 'express';
+import cookieParser from 'cookie-parser';
+import bodyParser from 'body-parser';
+import methodOverride from 'method-override';
+import session from 'express-session';
+import mongoose from 'mongoose';
+import compression from 'compression';
+import loudRejection from 'loud-rejection';
+import {errorHandler, notFoundHandler} from 'express-api-error-handler';
 
-var express = require('express'),
-    http = require('http'),
-    nconf = require('nconf'),
-    cookieParser = require('cookie-parser'),
-    bodyParser = require('body-parser'),
-    methodOverride = require('method-override'),
-    session = require('express-session'),
-    MongoStore = require('connect-mongo')(session),
-    mongoose = require('mongoose'),
-    bunyan = require('bunyan'),
-    path = require('path'),
-    compression = require('compression');
+import config from './app/config';
+import cleanUp from './cleanup';
+import {
+    generalLogger as log,
+    mongooseLogger
+} from './app/log';
+import {
+    api,
+    category,
+    core,
+    search,
+    settings,
+    torrent
+} from './app/routes';
 
-nconf.use('memory');
-nconf.argv().env('__').file({
-    file: './config.json'
-});
+// Stops promises being silent
+loudRejection();
 
-var log = bunyan.createLogger({
-    name: 'Bitcannon',
-    version: require('./package.json').version,
-    streams: [
-        {
-            level: 'info',
-            stream: process.stdout // log INFO and above to stdout
-        }, {
-            level: 'error',
-            path: path.resolve(nconf.get('logs:location')) // log ERROR and above to a file
+// Handles thrown errors and logs them
+cleanUp();
+
+const MongoStore = require('connect-mongo')(session);
+
+mongoose.Promise = Promise;
+
+const mongoHost = process.env.MONGO_HOST || config.get('database.mongodb.host');
+const uri = 'mongodb://' + mongoHost + ':' + config.get('database.mongodb.port') + '/' + config.get('database.mongodb.collection');
+
+if (config.get('database.mongodb.enabled')) {
+    mongoose.connect(uri, err => {
+        if (err) {
+            throw new Error('Cannot connect to mongodb, please check your config.json');
         }
-    ]
-});
-
-if(nconf.get('database:mongodb:enabled')){
-    mongoose.connect('mongodb://' + nconf.get('database:mongodb:host') + ':' + nconf.get('database:mongodb:port') + '/' + nconf.get('database:mongodb:collection'), function(err){
-        if(err){ console.log('Cannot connect to mongodb, please check your config.json'); process.exit(1); }
     });
+    if (process.env.NODE_ENV !== 'production') {
+        mongoose.set('debug', (coll, method, query, doc, options) => {  // eslint-disable-line max-params
+            mongooseLogger.info({
+                query: {
+                    coll,
+                    method,
+                    query,
+                    doc,
+                    options
+                }
+            });
+        });
+    }
 } else {
-    console.log('No database is enabled, please check your config.json'); process.exit(1);
+    throw new Error('No database is enabled, please check your config.json');
 }
 
-var app = express();
+const app = express();
 
 app.disable('x-powered-by');
 
-app.set('views', __dirname + '/app/views');
-app.set('view engine', 'jade');
+app.set('views', path.resolve(__dirname, 'app/views'));
+app.set('view engine', 'pug');
 app.use(compression());
-app.use(express.static(__dirname + '/app/public', {
+app.use(express.static(path.resolve(__dirname, 'app/public'), {
     maxAge: 86400000
 }));
 app.use(cookieParser());
@@ -57,8 +76,9 @@ app.use(bodyParser.urlencoded({
 }));
 app.use(bodyParser.json());
 app.use(methodOverride());
+
 app.use(session({
-    secret: nconf.get('session:secret'),
+    secret: config.get('session.secret'),
     name: 'session',
     store: new MongoStore({
         mongooseConnection: mongoose.connection
@@ -68,24 +88,39 @@ app.use(session({
     saveUninitialized: true
 }));
 
-app.use(function(req, res, next){
-    res.locals.title = nconf.get('web:title');
+app.use((req, res, next) => {
+    res.locals.title = config.get('app.title');
     res.locals.currentPath = req.originalUrl;
-    res.locals.trackers = nconf.get('trackers');
+    res.locals.trackers = config.get('trackers');
     next();
 });
 
-app.use('/', require('./app/routes/core'));
-app.use('/api', require('./app/routes/api'));
+app.use('/', core);
 
-app.use(function(req, res){
-    res.status(404).send('Either we lost this page or you clicked an incorrect link!');
-    log.warn({
-        status: '404',
-        pageUrl: req.originalUrl
+app.use('/api', api);
+app.use('/api/category', category);
+app.use('/api/search', search);
+app.use('/api/settings', settings);
+app.use('/api/torrent', torrent);
+
+app.use('/healthcheck', (req, res) => {
+    res.status(200).json({
+        uptime: process.uptime()
     });
 });
 
-http.createServer(app).listen(nconf.get('web:port'), '0.0.0.0', function(){
-    console.log('Running on port '+ nconf.get('web:port'));
-});
+app.use(errorHandler({
+    log: ({err, req, body}) => {
+        log.error(err, `${body.status} ${req.method} ${req.url}`);
+    },
+    // This hides 5XX errors in production to prevent info leaking
+    hideProdErrors: true
+}));
+
+app.use(notFoundHandler({
+    log: ({req}) => {
+        log.info(`404 ${req.method} ${req.url}`);
+    }
+}));
+
+app.listen(config.get('app.port'), () => log.info(`Astro is running on port ${config.get('app.port')}`));

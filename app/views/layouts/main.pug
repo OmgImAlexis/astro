@@ -2,9 +2,9 @@ doctype(html)
 html
     head
         meta(charset="utf-8")
-        
+
         title= title
-        
+
         meta(name="description", content="")
         meta(name="viewport", content="width=device-width")
 
@@ -19,7 +19,7 @@ html
                         span.icon-bar
                         span.icon-bar
                         span.icon-bar
-                    a.navbar-brand(href="/") BitCannon
+                    a.navbar-brand(href="/") Astro
                 .collapse.navbar-collapse
                     ul.nav.navbar-nav
                         li(class=(currentPath === '/browse' ? 'active' : ''))
@@ -31,6 +31,6 @@ html
                             a(href="#", data-toggle="modal", data-target="#settingsModal") Settings #[span.caret]
         block content
         .footer.text-center
-            | &copy; #[a(href="https://github.com/bitcannon-org/bitcannon-web/graphs/contributors") BitCannon Contributors]
+            | &copy; #[a(href="https://github.com/bitcannon-org/astro/graphs/contributors") Astro Contributors]
         script(src="/js/vender.min.js")
-        script(src="/js/core.min.js")
+        script(src="/js/core.js")

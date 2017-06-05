@@ -1,130 +1,126 @@
-var express = require('express'),
-    nconf = require('nconf'),
-    async = require('async'),
-    Torrent = require('models/Torrent.js'),
-    Category = require('models/Category.js');
+import async from 'async';
+import {Router} from 'express';
 
-module.exports = (function() {
-    var app = express.Router();
+import config from '../config';
+import {
+    Category,
+    Torrent
+} from '../models';
 
-    app.use(function(req, res, next){
-        Torrent.count().exec(function(err, count){
-            if(err){ console.log(err); }
-            res.locals.stats = {};
-            res.locals.stats.count = count;
-            next();
+const router = new Router();
+
+router.use((req, res, next) => {
+    Torrent.count().exec((err, count) => {
+        if (err) {
+            next(err);
+        }
+        res.locals.stats = {};
+        res.locals.stats.count = count;
+        next();
+    });
+});
+
+router.get('/', async (req, res, next) => {
+    const categories = await Category.find().exec().catch(next);
+    res.render('index', {
+        categories
+    });
+});
+
+router.get('/about', (req, res) => {
+    res.render('about');
+});
+
+router.get('/browse', async (req, res, next) => {
+    const categories = await Category.find({}).sort({
+        title: 1
+    }).exec().catch(next);
+
+    async.each(categories, async (category, callback) => {
+        // This is to check if the calculation is already done for the category
+        // If a new one is added and the calculation isn't done then it does it and saves it for later
+        if (category.torrentCount < 0 || !category.torrentCount) {
+            const count = await Torrent.count({
+                category: category._id
+            }).exec().catch(callback);
+            category.torrentCount = count;
+            category.save();
+            callback(null);
+        } else {
+            callback(null);
+        }
+    }, err => {
+        if (err) {
+            next(err);
+        }
+        res.render('browse', {
+            categories
         });
     });
+});
 
-    app.get('/', function(req, res){
-        Category.find().exec(function(err, categories){
-            if(err){ console.log(err); }
-            res.render('index',{
-                categories: categories
-            });
-        });
+router.get('/category/:slug', async (req, res, next) => {
+    const category = await Category.findOne({
+        slug: req.params.slug
+    }).exec().catch(next);
+
+    const torrents = await Torrent.find({
+        category: category._id
+    }).limit(config.get('app.torrentsPerPage')).populate('category').sort('_id').exec().catch(next);
+
+    res.render('search', {
+        torrents
     });
+});
 
-    app.get('/about', function(req, res){
-        res.render('about');
+router.get('/torrent/:infoHash', async (req, res, next) => {
+    const torrent = await Torrent.findOne({
+        infoHash: req.params.infoHash
+    }).populate('category').exec().catch(next);
+
+    res.render('torrent', {
+        torrent
     });
+});
 
-    app.get('/browse', function(req, res){
-        Category.find({}).sort({
-            'title': 1
-        }).lean().exec(function(err, categories){
-            if(err) { console.log(err); }
-            async.each(categories, function(category, callback) {
-                Torrent.count({
-                    category: category._id
-                }).exec(function(err, torrentCount){
-                    if(err) { console.log(err); }
-                    category.torrentCount = torrentCount;
-                    callback(null);
-                });
-            }, function(err){
-                if(err) { console.log(err); }
-                res.render('browse', {
-                    categories: categories
-                });
-            });
-        });
+router.get('/search', async (req, res, next) => {
+    const limit = req.query.limit || config.get('app.torrentsPerPage');
+    const sorting = (req.query.sort || config.get('app.defaultSearchSorting')).toLowerCase();
+    const order = (req.query.order || config.get('app.defaultSearchOrder')).toLowerCase();
+    const sort = {
+        score: {
+            $meta: 'textScore'
+        }
+    };
+    const search = {};
+    let category = null;
+    if (req.query.category) {
+        category = await Category.findOne({
+            slug: req.query.category
+        }).exec().catch(next);
+    }
+    if (req.query.q) {
+        if (category === null) {
+            search.$text = {
+                $search: req.query.q
+            };
+        } else {
+            search.$text = {
+                $search: req.query.q
+            };
+            search.category = category._id;
+        }
+    }
+    sort[((sorting === 'seeders' || sorting === 'leechers') ? 'swarm.' : '') + sorting] = (order === 'asc' ? 1 : -1);
+    const torrents = await Torrent.find(search, {
+        score: {
+            $meta: 'textScore'
+        }
+    }).limit(limit).sort(sort).populate('category').exec().catch(next);
+
+    res.render('search', {
+        torrents
     });
+});
 
-    app.get('/category/:slug', function(req, res){
-        async.waterfall([
-            function(callback) {
-                Category.findOne({slug: req.params.slug}).exec(function(err, category){
-                    if(err) { callback(err); }
-                    if(category){
-                        callback(null, category);
-                    }
-                });
-            },
-            function(category, callback) {
-                Torrent.find({
-                    category: category._id
-                }).limit(nconf.get('web:torrentsPerPage')).populate('category').sort('_id').exec(function(err, torrents) {
-                    if(err) { console.log(err); }
-                    callback(null, torrents);
-                });
-            }
-        ], function (err, torrents) {
-            if(err) { console.log(err); }
-            res.render('search', {
-                torrents: torrents
-            });
-        });
-    });
-
-    app.get('/search', function(req, res){
-        var limit = req.query.limit || nconf.get('web:torrentsPerPage'), search = {};
-        async.waterfall([
-            function(callback) {
-                if(req.query.category){
-                    Category.findOne({slug: req.query.category}).exec(function(err, category){
-                        if(err) { callback(err); }
-                        if(category){
-                            callback(null, category);
-                        }
-                    });
-                } else {
-                    callback(null, null);
-                }
-            },
-            function(category, callback) {
-                if(req.query.q){
-                    if(category === null){
-                        search = { $text: { $search: req.query.q }};
-                    } else {
-                        search = { $text: { $search: req.query.q }, category: category._id };
-                    }
-                }
-                Torrent.find(search, {
-                    score: {
-                        $meta: 'textScore'
-                    }
-                }).limit(limit).populate('category').exec(function(err, torrents) {
-                    if(err) { console.log(err); }
-                    callback(null, torrents);
-                });
-            }
-        ], function (err, torrents) {
-            if(err) { console.log(err); }
-            res.render('search', {
-                torrents: torrents
-            });
-        });
-    });
-
-    app.get('/torrent/:infoHash', function(req, res){
-        Torrent.findOne({infoHash: req.params.infoHash}).populate('category').exec(function(err, torrent){
-            if(err){ console.log(err); }
-            res.render('torrent',{
-                torrent: torrent
-            });
-        });
-    });
-
-    return app;
-})();
+export default router;
