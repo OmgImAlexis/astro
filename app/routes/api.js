@@ -30,8 +30,8 @@ router.use((req, res, next) => {
     return next();
 });
 
-router.get('/stats', (req, res) => {
-    res.send('Welcome to the Astro api');
+router.get('/stats', (req, res, next) => {
+    next(new HTTPError.NotImplemented());
 });
 
 router.get('/browse', async (req, res, next) => {
