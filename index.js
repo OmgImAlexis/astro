@@ -45,7 +45,7 @@ if (config.get('database.mongodb.enabled')) {
     });
     if (process.env.NODE_ENV !== 'production') {
         mongoose.set('debug', (coll, method, query, doc, options) => {  // eslint-disable-line max-params
-            mongooseLogger.info({
+            mongooseLogger.debug({
                 query: {
                     coll,
                     method,

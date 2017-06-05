@@ -5,7 +5,7 @@
     "main": "index.js",
     "scripts": {
         "start": "cross-env NODE_ENV=production babel-node index.js | bunyan",
-        "start:development": "cross-env NODE_ENV=development nodemon index.js --exec babel-node | bunyan",
+        "start:development": "cross-env NODE_ENV=development nodemon index.js --exec babel-node --ignore app/views | bunyan",
         "start:background:imports": "cross-env NODE_ENV=production babel-node background/imports.js | bunyan",
         "test": "xo && nyc ava"
     },
