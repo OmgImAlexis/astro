@@ -13,9 +13,8 @@ const router = new Router();
 
 router.get('/', (req, res) => {
     res.json({
-        message: 'Welcome to the Astro API',
+        message: 'Welcome to the Astro API.',
         apiKeyRequired: config.get('api.keyNeeded'),
-        status: 200,
         version
     });
 });

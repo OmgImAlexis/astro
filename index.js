@@ -124,3 +124,5 @@ app.use(notFoundHandler({
 }));
 
 app.listen(config.get('app.port'), () => log.info(`Astro is running on port ${config.get('app.port')}`));
+
+export default app;
