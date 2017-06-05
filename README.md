@@ -1,4 +1,8 @@
-# [![Astro](.github/images/logo.png)](https://github.com/bitcannon-org/astro)
+<p align="center">
+    <a href="https://github.com/bitcannon-org/astro" alt="Astro">
+        <img src=".github/images/logo.png" width="300">
+    </a>
+</p>
 
 > A torrent site mirroring tool
 
