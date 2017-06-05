@@ -15,12 +15,12 @@ import {MongoClient} from 'mongodb';
 
 import config from '../app/config';
 import cleanUp from '../cleanup';
-import {generalLogger as log} from '../app/log'; // eslint-disable-line import/default
+import {generalLogger as log} from '../app/log';
 
 // Stops promises being silent
 loudRejection();
 
-// Handles throw errors and logs them
+// Handles thrown errors and logs them
 cleanUp();
 
 const numCPUs = cpus().length;

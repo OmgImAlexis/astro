@@ -1,6 +1,7 @@
 'use strict';
 
 import path from 'path';
+import crypto from 'crypto';
 import express from 'express';
 import cookieParser from 'cookie-parser';
 import bodyParser from 'body-parser';
@@ -29,7 +30,7 @@ import {
 // Stops promises being silent
 loudRejection();
 
-// Handles throw errors and logs them
+// Handles thrown errors and logs them
 cleanUp();
 
 const MongoStore = require('connect-mongo')(session);
@@ -78,18 +79,6 @@ app.use(bodyParser.urlencoded({
 }));
 app.use(bodyParser.json());
 app.use(methodOverride());
-
-if (!config.get('session.secret') || config.get('session.secret') === '') {
-    const crypto = require('crypto');
-    crypto.randomBytes(48, (err, buf) => {
-        if (err) {
-            log.trace(err);
-            throw err;
-        }
-        const secret = buf.toString('hex');
-        config.set('session.secret', secret);
-    });
-}
 
 app.use(session({
     secret: config.get('session.secret'),

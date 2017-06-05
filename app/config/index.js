@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 import Configstore from 'configstore';
 import {name} from '../../package';
 
@@ -28,7 +29,7 @@ const defaults = {
         }
     },
     session: {
-        secret: null
+        secret: crypto.randomBytes(64).toString('hex')
     },
     trackers: [],
     providers: {
