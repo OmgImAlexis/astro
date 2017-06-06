@@ -5,6 +5,8 @@ set -e
 # This probably won't be needed once confinement is enabled but should be left in anyway since not all OS's support snaps confinement yet e.g ArchLinux and Fedora
 DIR="$(dirname $0)"
 
+export PATH="$DIR:$PATH"
+
 cd "$DIR/../lib/node_modules/astro" || exit 1
 
 "$DIR/"yarn start
