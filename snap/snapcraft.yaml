@@ -22,6 +22,10 @@ parts:
   astro:
     source: ..
     plugin: nodejs
+    prepare: |
+      sed -i 's/logs\/error.log/\/dev\/stdout/g' app/config/index.js
+      mkdir -p $SNAPCRAFT_PART_INSTALL/lib/node_modules/astro
+      cp -R . $SNAPCRAFT_PART_INSTALL/lib/node_modules/astro/
   astro-dev-dependencies:
     plugin: nodejs
     node-packages:
