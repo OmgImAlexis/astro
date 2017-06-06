@@ -53,4 +53,8 @@ import.txt
 # Log files
 *.log
 
+# Snapcraft
+snap/*/
+snap/*.snap
+
 .nyc_output
