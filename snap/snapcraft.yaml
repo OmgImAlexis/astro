@@ -30,3 +30,4 @@ parts:
     plugin: copy
     files:
         astro.wrapper: bin/astro
+        astro-imports.wrapper: bin/astro-imports
