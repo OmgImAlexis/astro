@@ -10,8 +10,8 @@ import zlib from 'zlib';
 import url from 'url';
 import parseString from 'xml2js-es6-promise';
 
-import {generalLogger as log} from '../../app/log';
-import config from '../../app/config';
+import {generalLogger as log} from '../../src/log';
+import config from '../../src/config';
 import {protocol} from '../protocol';
 import getTorrentInfo from '../get-torrent-info';
 import Provider from './provider';
@@ -244,7 +244,6 @@ class RSS extends Provider {
                     log.trace(err);
                 } else {
                     end = process.hrtime(start);
-                    log.info(`elapsed time: ${end[0]} seconds and ${end[1]} nanoseonds.`);
                     log.info(`Processing ${torrent.title}`);
                     const {title, size, details, swarm} = torrent;
                     Provider.addTorrent({
@@ -257,6 +256,7 @@ class RSS extends Provider {
                         imported: Date.now(),
                         infoHash: torrent._id
                     });
+                    log.debug(`elapsed time: ${end[0]} seconds and ${end[1]} nanoseonds.`);
                 }
             });
         };

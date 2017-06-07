@@ -1,4 +1,3 @@
-import async from 'async';
 import {Router} from 'express';
 
 import config from '../config';
@@ -36,26 +35,8 @@ router.get('/browse', async (req, res, next) => {
         title: 1
     }).exec().catch(next);
 
-    async.each(categories, async (category, callback) => {
-        // This is to check if the calculation is already done for the category
-        // If a new one is added and the calculation isn't done then it does it and saves it for later
-        if (category.torrentCount < 0 || !category.torrentCount) {
-            const count = await Torrent.count({
-                category: category._id
-            }).exec().catch(callback);
-            category.torrentCount = count;
-            category.save();
-            callback(null);
-        } else {
-            callback(null);
-        }
-    }, err => {
-        if (err) {
-            next(err);
-        }
-        res.render('browse', {
-            categories
-        });
+    res.render('browse', {
+        categories
     });
 });
 

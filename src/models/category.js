@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import {slugify} from '../../utils';
+import {slugify} from '../utils';
 
 const Schema = mongoose.Schema;
 
@@ -11,7 +11,6 @@ const Category = new Schema({
     },
     slug: {
         type: String,
-        required: true,
         unique: true
     },
     aliases: [

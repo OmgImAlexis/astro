@@ -4,11 +4,17 @@
     "description": "",
     "main": "index.js",
     "scripts": {
-        "start": "cross-env NODE_ENV=production babel-node index.js | bunyan",
-        "start:development": "cross-env NODE_ENV=development nodemon index.js --exec babel-node | bunyan",
-        "start:background:imports": "cross-env NODE_ENV=production babel-node background/imports.js | bunyan",
+        "clean": "rm -rf build && mkdir build",
+        "watch": "babel --watch src --out-dir lib --source-maps inline --copy-files",
+        "build": "babel src --out-dir lib --source-maps inline --copy-files",
+        "imports": "cross-env NODE_ENV=production ./cli.js --background-imports",
         "test": "xo && nyc ava"
     },
+    "bin": "cli.js",
+    "files": [
+        "lib/index.js",
+        "cli.js"
+    ],
     "engines": {
         "node": ">=4.0.0"
     },
@@ -27,8 +33,11 @@
         "app-module-path": "^1.0.4",
         "async": "^1.5.0",
         "babel-cli": "^6.24.1",
+        "babel-plugin-transform-runtime": "^6.23.0",
+        "babel-polyfill": "^6.23.0",
         "babel-preset-es2015": "^6.24.1",
         "babel-preset-stage-0": "^6.24.1",
+        "babel-register": "^6.24.1",
         "bluebird": "^3.5.0",
         "body-parser": "^1.13.1",
         "bunyan": "^1.8.10",
@@ -44,6 +53,7 @@
         "http-errors": "^1.6.1",
         "line-by-line": "^0.1.4",
         "loud-rejection": "^1.6.0",
+        "meow": "^3.7.0",
         "method-override": "^2.3.3",
         "mongodb": "^2.1.18",
         "mongoose": "^4.5.0",
@@ -52,11 +62,13 @@
         "parse-torrent": "^5.7.3",
         "pug": "^2.0.0-rc.1",
         "underscore": "^1.8.3",
+        "update-notifier": "^2.2.0",
         "xml2js-es6-promise": "^1.1.1"
     },
     "devDependencies": {
         "ava": "^0.19.1",
         "nodemon": "^1.11.0",
+        "supertest": "^3.0.0",
         "xo": "^0.18.2"
     },
     "xo": {
@@ -83,18 +95,17 @@
         "envs": [
             "node",
             "es6"
-        ]
-    },
-    "babel": {
-        "presets": [
-            "es2015",
-            "stage-0"
+        ],
+        "ignores": [
+            "lib/**"
         ]
     },
     "ava": {
+        "babel": "inherit",
         "require": [
-            "babel-core/register"
-        ]
+             "babel-core/register",
+             "babel-polyfill"
+         ]
     },
     "nyc": {
         "reporter": [

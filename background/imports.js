@@ -13,9 +13,9 @@ import outdent from 'outdent';
 import loudRejection from 'loud-rejection';
 import {MongoClient} from 'mongodb';
 
-import config from '../app/config';
-import cleanUp from '../cleanup';
-import {generalLogger as log} from '../app/log';
+import config from '../src/config';
+import cleanUp from '../src/cleanup';
+import {generalLogger as log} from '../src/log';
 
 // Stops promises being silent
 loudRejection();
