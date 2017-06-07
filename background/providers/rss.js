@@ -10,8 +10,8 @@ import zlib from 'zlib';
 import url from 'url';
 import parseString from 'xml2js-es6-promise';
 
-import {generalLogger as log} from '../../app/log';
-import config from '../../app/config';
+import {generalLogger as log} from '../../src/log';
+import config from '../../src/config';
 import {protocol} from '../protocol';
 import getTorrentInfo from '../get-torrent-info';
 import Provider from './provider';

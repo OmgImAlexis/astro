@@ -24,12 +24,13 @@ WORKDIR /app
 COPY ./package.json .
 COPY ./yarn.lock .
 
-RUN yarn install
+RUN yarn install --production
 
 ENV MONGO_HOST mongo
 
-COPY . .
+COPY cli.js .
+COPY lib .
 
 EXPOSE 3000
 
-CMD ["yarn", "start"]
+CMD ["node --webserver --port=3000"]

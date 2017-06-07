@@ -8,7 +8,7 @@ import {
     search,
     settings,
     torrent
-} from '../../app/routes';
+} from '../../src/routes';
 
 const makeApp = () => {
     const app = express();

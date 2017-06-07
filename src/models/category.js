@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import {slugify} from '../../utils';
+import {slugify} from '../utils';
 
 const Schema = mongoose.Schema;
 

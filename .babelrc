@@ -1,0 +1,11 @@
+{
+    "presets": [
+        "es2015",
+        "stage-0",
+        "@ava/transform-test-files"
+    ],
+    "plugins": [
+        "transform-regenerator",
+        "transform-runtime"
+    ]
+}

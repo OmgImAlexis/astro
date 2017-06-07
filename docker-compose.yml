@@ -9,8 +9,8 @@ services:
         links:
             - "mongo"
         volumes:
-            - .:/app
-            - /app/node_modules
+            - .:/src
+            - /src/node_modules
     background:
         build: .
         command: [
@@ -22,8 +22,8 @@ services:
         links:
             - "mongo"
         volumes:
-            - .:/app
-            - /app/node_modules
+            - .:/src
+            - /src/node_modules
     mongo:
         image: "mongo"
         ports:

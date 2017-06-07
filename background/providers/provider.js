@@ -4,8 +4,8 @@
 
 import {MongoClient} from 'mongodb';
 
-import config from '../../app/config';
-import {generalLogger as log} from '../../app/log'; // eslint-disable-line import/default
+import config from '../../src/config';
+import {generalLogger as log} from '../../src/log';
 
 log.level('trace');
 

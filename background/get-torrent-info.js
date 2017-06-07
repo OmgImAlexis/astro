@@ -4,7 +4,7 @@
  */
 
 import outdent from 'outdent';
-import {generalLogger as log} from '../app/log';
+import {generalLogger as log} from '../src/log';
 
 const {promisifyAll} = require('bluebird');
 const parseTorrent = promisifyAll(require('parse-torrent'));

@@ -1,4 +1,4 @@
-import log from './app/log';
+import log from './log';
 
 const noOp = () => {};
 

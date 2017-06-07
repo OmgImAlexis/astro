@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 import request from 'supertest';
 import test from 'ava';
 import {makeApp} from '../helpers';
-import {Category} from '../../app/models';
+import {Category} from '../../src/models';
 
 test.before(async () => {
     mongoose.Promise = Promise;
