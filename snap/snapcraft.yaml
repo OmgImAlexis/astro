@@ -10,22 +10,27 @@ description: |
 grade: devel # must be 'stable' to release into candidate/stable channels
 confinement: devmode # use 'strict' once you have the right plugs and slots
 
+apps:
+  astro-web:
+    command: bin/astro
+    daemon: simple
+  astro-imports:
+    command: bin/astro-imports
+    daemon: simple
+
 parts:
   guessit:
     plugin: python
     python-packages:
       - guessit
-  yarn:
-    plugin: nodejs
-    node-packages:
-      - yarn
   astro:
     source: ..
     plugin: nodejs
     prepare: |
       sed -i 's/logs\/error.log/\/dev\/stdout/g' app/config/index.js
       mkdir -p $SNAPCRAFT_PART_INSTALL/lib/node_modules/astro
-      cp -R . $SNAPCRAFT_PART_INSTALL/lib/node_modules/astro/
+      rsync -av --exclude=.git ./ $SNAPCRAFT_PART_INSTALL/lib/node_modules/astro/
+    build-packages: [rsync]
   astro-dev-dependencies:
     plugin: nodejs
     node-packages:

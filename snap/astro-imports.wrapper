@@ -9,4 +9,4 @@ export PATH="$DIR:$PATH"
 
 cd "$DIR/../lib/node_modules/astro" || exit 1
 
-"$DIR/"yarn start:background:imports
+"$DIR/"npm run-script start:background:imports
