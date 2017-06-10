@@ -12,7 +12,7 @@ import {
 const router = new Router();
 
 router.get('/', (req, res) => {
-    res.json({
+    res.send({
         message: 'Welcome to the Astro API.',
         apiKeyRequired: config.get('api.keyNeeded'),
         version
@@ -56,7 +56,7 @@ router.get('/browse', async (req, res, next) => {
         if (err) {
             next(err);
         }
-        res.json({
+        res.send({
             categories
         });
     });

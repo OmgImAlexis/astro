@@ -15,7 +15,7 @@ test.after.always(() => {
 
 test('should return 200', async t => {
     const app = makeApp();
-    const res = await request(app).get('/api/');
+    const res = await request(app).get('/api');
     t.is(res.status, 200);
     t.is(res.body.message, 'Welcome to the Astro API.');
     t.is(res.body.version, version);

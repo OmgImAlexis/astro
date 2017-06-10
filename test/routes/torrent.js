@@ -2,21 +2,10 @@ import mongoose from 'mongoose';
 import request from 'supertest';
 import test from 'ava';
 import {makeApp} from '../helpers';
-import {Category, Torrent} from '../../app/models';
 
-test.before(async () => {
+test.before(() => {
     mongoose.Promise = Promise;
     mongoose.connect('mongodb://localhost:27017/astro-test-db');
-    const unknownCategory = await Category.findOne({title: 'Unknown'}).exec();
-    if (!unknownCategory) {
-        await Category.create({
-            title: 'Unknown',
-            aliases: [
-                'other',
-                'unknown'
-            ]
-        });
-    }
 });
 
 test.after.always(() => {
@@ -26,17 +15,18 @@ test.after.always(() => {
 });
 
 test('should return torrent that matches infoHash', async t => {
-    const unknownCategory = await Category.findOne({title: 'Unknown'}).exec();
-    await Torrent.create({
+    const app = makeApp();
+    const category = await request(app).post('/api/category').send({
+        title: 'TorrentTest'
+    });
+    const categoryId = category.body.category._id;
+    const torrent = await request(app).post('/api/torrent').send({
         title: 'Ubuntu 17.04 Desktop (64-bit)',
         infoHash: '59066769b9ad42da2e508611c33d7c4480b3857b',
-        category: unknownCategory._id
-    }).catch(error => {
-        t.fail(error);
+        category: categoryId
     });
-
-    const app = makeApp();
-    const res = await request(app).get(`/api/torrent/59066769b9ad42da2e508611c33d7c4480b3857b`);
+    const infoHash = torrent.body.torrent.infoHash;
+    const res = await request(app).get(`/api/torrent/${infoHash}`);
 
     t.is(res.status, 200);
     t.is(res.body.torrent.title, 'Ubuntu 17.04 Desktop (64-bit)');

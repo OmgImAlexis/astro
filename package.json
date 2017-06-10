@@ -48,7 +48,7 @@
         "loud-rejection": "^1.6.0",
         "method-override": "^2.3.3",
         "mongodb": "^2.1.18",
-        "mongoose": "^4.5.0",
+        "mongoose": "^4.10.5",
         "nyc": "^11.0.1",
         "outdent": "^0.3.0",
         "parse-torrent": "^5.7.3",

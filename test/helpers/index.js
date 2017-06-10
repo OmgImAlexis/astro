@@ -1,4 +1,5 @@
 import express from 'express';
+import bodyParser from 'body-parser';
 import {errorHandler, notFoundHandler} from 'express-api-error-handler';
 
 import {
@@ -12,6 +13,10 @@ import {
 
 const makeApp = () => {
     const app = express();
+    app.use(bodyParser.urlencoded({
+        extended: true
+    }));
+    app.use(bodyParser.json());
     app.use('/', core);
 
     app.use('/api', api);

@@ -14,12 +14,11 @@ test.after.always(() => {
     });
 });
 
-// Not too sure why this is trying to set headers after the fact.
 // Should return [] since HL3 doesn't exist.
-test.failing('should return no search results', async t => {
+test('should return no search results', async t => {
     const app = makeApp();
-    const res = await request(app).get(`/api/search?q=x`);
+    const res = await request(app).get(`/api/search?q=HL3`);
 
     t.is(res.status, 200);
-    t.is(res.body.torrents.length, 0);
+    t.deepEqual(res.body.torrents, []);
 });
