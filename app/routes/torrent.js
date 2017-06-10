@@ -22,14 +22,14 @@ router.get('/:infoHash', async (req, res, next) => {
     }
 });
 
-router.post('/', async (req, res, next) => {
+router.post('/', (req, res, next) => {
     const {title, infoHash, category} = req.body;
-    await Torrent.create({
+    Torrent.create({
         title,
         infoHash,
         category
     }).then(torrent => {
-        return res.send({torrent});
+        res.send({torrent});
     }).catch(next);
 });
 

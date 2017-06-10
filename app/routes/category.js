@@ -29,10 +29,10 @@ router.get('/:slug', async (req, res, next) => {
 
 router.post('/', async (req, res, next) => {
     const {title} = req.body;
-    await Category.create({
+    Category.create({
         title
     }).then(category => {
-        return res.send({category});
+        res.send({category});
     }).catch(next);
 });
 
