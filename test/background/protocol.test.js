@@ -3,7 +3,7 @@ import https from 'https';
 
 import test from 'ava';
 
-import {protocol, userAgent} from '../protocol';
+import {protocol, userAgent} from '../../src/background/protocol';
 
 test('https://example.com should return the https module', t => {
     const _https = protocol('https://example.com');
