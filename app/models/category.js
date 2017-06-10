@@ -11,7 +11,6 @@ const Category = new Schema({
     },
     slug: {
         type: String,
-        required: true,
         unique: true
     },
     aliases: [

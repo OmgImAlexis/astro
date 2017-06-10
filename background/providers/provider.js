@@ -7,6 +7,8 @@ import {MongoClient} from 'mongodb';
 import config from '../../app/config';
 import {generalLogger as log} from '../../app/log'; // eslint-disable-line import/default
 
+log.level('trace');
+
 const uri = `mongodb://${config.get('database.mongodb.host')}:${config.get('database.mongodb.port')}/${config.get('database.mongodb.collection')}`;
 let db;
 

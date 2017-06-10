@@ -45,7 +45,7 @@ if (config.get('database.mongodb.enabled')) {
     });
     if (process.env.NODE_ENV !== 'production') {
         mongoose.set('debug', (coll, method, query, doc, options) => {  // eslint-disable-line max-params
-            mongooseLogger.info({
+            mongooseLogger.debug({
                 query: {
                     coll,
                     method,
@@ -124,3 +124,5 @@ app.use(notFoundHandler({
 }));
 
 app.listen(config.get('app.port'), () => log.info(`Astro is running on port ${config.get('app.port')}`));
+
+export default app;

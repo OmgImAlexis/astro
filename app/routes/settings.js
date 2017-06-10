@@ -7,7 +7,7 @@ const router = new Router();
 const {providers} = config.get();
 
 router.get('/', (req, res) => {
-    res.json({
+    res.send({
         settings: {
             providers
         }

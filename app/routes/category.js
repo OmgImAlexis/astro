@@ -1,3 +1,4 @@
+import HTTPError from 'http-errors';
 import {Router} from 'express';
 
 import config from '../config';
@@ -13,13 +14,26 @@ router.get('/:slug', async (req, res, next) => {
         slug: req.params.slug
     }).exec().catch(next);
 
+    if (!category) {
+        return next(new HTTPError.NotFound('Invalid category.'));
+    }
+
     const torrents = await Torrent.find({
         category: category._id
     }).limit(config.get('app.torrentsPerPage')).populate('category').sort('_id').exec().catch(next);
 
-    res.json({
+    return res.send({
         torrents
     });
+});
+
+router.post('/', async (req, res, next) => {
+    const {title} = req.body;
+    Category.create({
+        title
+    }).then(category => {
+        res.send({category});
+    }).catch(next);
 });
 
 export default router;
