@@ -2,7 +2,7 @@
 
 import {test} from 'ava';
 
-import FeedParser from '../../../../../src/background/providers/rss/lib/parse-feed';
+import FeedParser from '../../../../src/background/providers/rss/lib/parse-feed';
 
 import {
     generateAtomFeed,
