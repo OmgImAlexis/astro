@@ -1,105 +1,105 @@
 {
-    "name": "astro",
-    "version": "1.1.0",
-    "description": "",
-    "main": "index.js",
-    "scripts": {
-        "start": "cross-env NODE_ENV=production babel-node index.js | bunyan",
-        "start:development": "cross-env NODE_ENV=development nodemon index.js --exec babel-node | bunyan",
-        "start:background:imports": "cross-env NODE_ENV=production babel-node background/imports.js | bunyan",
-        "test": "xo && nyc ava"
+  "name": "astro",
+  "version": "1.1.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "cross-env NODE_ENV=production babel-node index.js | bunyan",
+    "start:development": "cross-env NODE_ENV=development nodemon index.js --exec babel-node | bunyan",
+    "start:background:imports": "cross-env NODE_ENV=production babel-node background/imports.js | bunyan",
+    "test": "xo && nyc ava"
+  },
+  "engines": {
+    "node": ">=4.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bitcannon-org/astro.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/bitcannon-org/astro/issues"
+  },
+  "homepage": "https://github.com/bitcannon-org/astro",
+  "dependencies": {
+    "app-module-path": "^1.0.4",
+    "async": "^1.5.0",
+    "babel-cli": "^6.24.1",
+    "babel-preset-es2015": "^6.24.1",
+    "babel-preset-stage-0": "^6.24.1",
+    "bluebird": "^3.5.0",
+    "body-parser": "^1.13.1",
+    "bunyan": "^1.8.10",
+    "compression": "^1.6.0",
+    "configstore": "^3.1.0",
+    "connect-mongo": "^1.3.0",
+    "cookie-parser": "^1.3.5",
+    "cross-env": "^5.0.0",
+    "event-stream": "^3.3.2",
+    "express": "^4.12.4",
+    "express-api-error-handler": "^1.1.0",
+    "express-session": "^1.11.3",
+    "http-errors": "^1.6.1",
+    "line-by-line": "^0.1.4",
+    "loud-rejection": "^1.6.0",
+    "method-override": "^2.3.3",
+    "mongodb": "^2.1.18",
+    "mongoose": "^4.5.0",
+    "nyc": "^11.0.1",
+    "outdent": "^0.3.0",
+    "parse-torrent": "^5.7.3",
+    "pug": "^2.0.0-rc.1",
+    "underscore": "^1.8.3",
+    "xml2js-es6-promise": "^1.1.1"
+  },
+  "devDependencies": {
+    "ava": "^0.19.1",
+    "nodemon": "^1.11.0",
+    "xo": "^0.18.2"
+  },
+  "xo": {
+    "space": 4,
+    "rules": {
+      "space-before-function-paren": [
+        "error",
+        "never"
+      ],
+      "no-console": "error",
+      "unicorn/no-new-buffer": "off",
+      "unicorn/filename-case": "off",
+      "unicorn/custom-error-definition": "off",
+      "unicorn/no-array-instanceof": "off",
+      "unicorn/catch-error-name": "off",
+      "unicorn/no-process-exit": "off",
+      "unicorn/throw-new-error": "off",
+      "unicorn/number-literal-case": "off",
+      "unicorn/prefer-starts-ends-with": "off",
+      "unicorn/prefer-type-error": "off",
+      "unicorn/explicit-length-check": "off",
+      "unicorn/no-abusive-eslint-disable": "off"
     },
-    "engines": {
-        "node": ">=4.0.0"
-    },
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/bitcannon-org/astro.git"
-    },
-    "keywords": [],
-    "author": "",
-    "license": "MIT",
-    "bugs": {
-        "url": "https://github.com/bitcannon-org/astro/issues"
-    },
-    "homepage": "https://github.com/bitcannon-org/astro",
-    "dependencies": {
-        "app-module-path": "^1.0.4",
-        "async": "^1.5.0",
-        "babel-cli": "^6.24.1",
-        "babel-preset-es2015": "^6.24.1",
-        "babel-preset-stage-0": "^6.24.1",
-        "bluebird": "^3.5.0",
-        "body-parser": "^1.13.1",
-        "bunyan": "^1.8.10",
-        "compression": "^1.6.0",
-        "configstore": "^3.1.0",
-        "connect-mongo": "^0.8.1",
-        "cookie-parser": "^1.3.5",
-        "cross-env": "^5.0.0",
-        "event-stream": "^3.3.2",
-        "express": "^4.12.4",
-        "express-api-error-handler": "^1.1.0",
-        "express-session": "^1.11.3",
-        "http-errors": "^1.6.1",
-        "line-by-line": "^0.1.4",
-        "loud-rejection": "^1.6.0",
-        "method-override": "^2.3.3",
-        "mongodb": "^2.1.18",
-        "mongoose": "^4.5.0",
-        "nyc": "^11.0.1",
-        "outdent": "^0.3.0",
-        "parse-torrent": "^5.7.3",
-        "pug": "^2.0.0-rc.1",
-        "underscore": "^1.8.3",
-        "xml2js-es6-promise": "^1.1.1"
-    },
-    "devDependencies": {
-        "ava": "^0.19.1",
-        "nodemon": "^1.11.0",
-        "xo": "^0.18.2"
-    },
-    "xo": {
-        "space": 4,
-        "rules": {
-            "space-before-function-paren": [
-                "error",
-                "never"
-            ],
-            "no-console": "error",
-            "unicorn/no-new-buffer": "off",
-            "unicorn/filename-case": "off",
-            "unicorn/custom-error-definition": "off",
-            "unicorn/no-array-instanceof": "off",
-            "unicorn/catch-error-name": "off",
-            "unicorn/no-process-exit": "off",
-            "unicorn/throw-new-error": "off",
-            "unicorn/number-literal-case": "off",
-            "unicorn/prefer-starts-ends-with": "off",
-            "unicorn/prefer-type-error": "off",
-            "unicorn/explicit-length-check": "off",
-            "unicorn/no-abusive-eslint-disable": "off"
-        },
-        "envs": [
-            "node",
-            "es6"
-        ]
-    },
-    "babel": {
-        "presets": [
-            "es2015",
-            "stage-0"
-        ]
-    },
-    "ava": {
-        "require": [
-            "babel-core/register"
-        ]
-    },
-    "nyc": {
-        "reporter": [
-            "lcov",
-            "text"
-        ]
-    }
+    "envs": [
+      "node",
+      "es6"
+    ]
+  },
+  "babel": {
+    "presets": [
+      "es2015",
+      "stage-0"
+    ]
+  },
+  "ava": {
+    "require": [
+      "babel-core/register"
+    ]
+  },
+  "nyc": {
+    "reporter": [
+      "lcov",
+      "text"
+    ]
+  }
 }
